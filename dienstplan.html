@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R3 Dienstplan</title>
+<style>
+:root{
+  --sb-w:220px;--sb-bg:#0f172a;--sb-hover:rgba(255,255,255,.07);--sb-active:rgba(99,102,241,.22);
+  --acc:#6366f1;--acc-d:#4f46e5;--acc-l:#eef2ff;
+  --bg:#f8fafc;--sur:#fff;--sur2:#f1f5f9;
+  --brd:#e2e8f0;--brd2:#cbd5e1;
+  --pri:#2563eb;--pri-l:#dbeafe;
+  --dan:#ef4444;--dan-l:#fef2f2;
+  --suc:#10b981;--suc-l:#d1fae5;
+  --war:#f59e0b;--war-l:#fef3c7;
+  --txt:#0f172a;--txt2:#475569;--txt3:#94a3b8;
+  --r:10px;--rl:14px;--rxl:18px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.06);
+  --shm:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.06);
+  --shl:0 10px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* Login */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);padding:24px}
+.login-box{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:420px;box-shadow:var(--shl)}
+.login-logo{font-size:26px;font-weight:900;color:#0f172a;letter-spacing:-1px;margin-bottom:4px}
+.login-logo span{color:var(--acc)}
+.login-sub{font-size:12px;color:var(--txt3);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:28px}
+.login-section-label{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.person-btn{width:100%;padding:10px 14px;border:1.5px solid var(--brd);border-radius:var(--r);background:#fff;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;transition:all .12s;font-family:inherit;text-align:left}
+.person-btn:hover{border-color:var(--acc);background:var(--acc-l)}
+.person-btn .pb-name{font-size:13px;font-weight:600;color:var(--txt)}
+.person-btn .pb-role{font-size:11px;color:var(--txt3)}
+.login-divider{text-align:center;color:var(--txt3);font-size:12px;margin:16px 0;position:relative}
+.login-divider::before,.login-divider::after{content:'';position:absolute;top:50%;width:calc(50% - 24px);height:1px;background:var(--brd)}
+.login-divider::before{left:0}.login-divider::after{right:0}
+.admin-toggle{width:100%;padding:9px;border:1.5px dashed var(--brd);border-radius:var(--r);background:transparent;cursor:pointer;font-size:12px;font-weight:600;color:var(--txt3);font-family:inherit;transition:all .12s}
+.admin-toggle:hover{border-color:var(--acc);color:var(--acc)}
+.admin-form{margin-top:14px;display:none}
+.admin-form.open{display:block}
+.login-empty{text-align:center;padding:24px;color:var(--txt3);font-size:13px}
+
+/* Layout */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sb-w);background:var(--sb-bg);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;overflow-y:auto}
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sb-brand{font-size:20px;font-weight:900;color:#fff;letter-spacing:-1px}
+.sb-brand span{color:var(--acc)}
+.sb-tagline{font-size:9px;font-weight:600;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.sb-nav{padding:10px 8px;flex:1}
+.sb-section{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.22);letter-spacing:1.5px;text-transform:uppercase;padding:10px 10px 5px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,.55);font-size:13px;font-weight:500;transition:all .12s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:var(--sb-hover);color:rgba(255,255,255,.9)}
+.nav-item.active{background:var(--sb-active);color:#fff}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-footer{padding:14px 8px;border-top:1px solid rgba(255,255,255,.06)}
+.user-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px}
+.user-chip-info{flex:1;min-width:0}
+.user-chip-name{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-chip-role{font-size:10px;color:rgba(255,255,255,.4)}
+.logout-btn{padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.12);background:transparent;color:rgba(255,255,255,.5);cursor:pointer;font-size:11px;font-family:inherit;transition:all .12s;white-space:nowrap}
+.logout-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* Content */
+.content{margin-left:var(--sb-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.page-header{background:var(--sur);border-bottom:1px solid var(--brd);padding:0 26px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:40;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.page-title{font-size:15px;font-weight:700;color:var(--txt)}
+.page-actions{display:flex;gap:8px;align-items:center}
+.page-body{padding:22px 26px;flex:1}
+
+/* Buttons */
+.btn{padding:8px 15px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all .12s;line-height:1.4;white-space:nowrap;font-family:inherit}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 1px 3px rgba(99,102,241,.25)}
+.btn-acc:hover{background:var(--acc-d)}
+.btn-pri{background:var(--pri);color:#fff}
+.btn-pri:hover{background:#1d4ed8}
+.btn-sec{background:var(--sur);color:var(--txt2);border:1.5px solid var(--brd)}
+.btn-sec:hover{background:var(--sur2);color:var(--txt);border-color:var(--brd2)}
+.btn-ghost{background:transparent;color:var(--txt2)}
+.btn-ghost:hover{background:var(--sur2)}
+.btn-dan{background:var(--dan);color:#fff}
+.btn-dan:hover{background:#dc2626}
+.btn-dan-ghost{background:transparent;color:var(--dan)}
+.btn-dan-ghost:hover{background:var(--dan-l)}
+.btn-suc{background:var(--suc);color:#fff}
+.btn-suc:hover{background:#059669}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:7px}
+.btn-xs{padding:3px 7px;font-size:11px;border-radius:6px}
+.btn-icon{padding:6px;border-radius:7px;aspect-ratio:1}
+.hidden{display:none!important}
+
+/* Cards */
+.card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rl);box-shadow:var(--sh);overflow:hidden}
+.card+.card{margin-top:12px}
+.card-header{padding:13px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--sur2)}
+.card-header h2{font-size:13px;font-weight:700}
+.card-body{padding:18px}
+
+/* Forms */
+.form-group{margin-bottom:14px}
+.form-group:last-child{margin-bottom:0}
+.field-label{display:block;font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+input:not([type=radio]):not([type=checkbox]):not([type=color]),select,textarea{width:100%;padding:8px 11px;border:1.5px solid var(--brd);border-radius:var(--r);font-size:13px;background:var(--sur);color:var(--txt);outline:none;transition:border-color .12s,box-shadow .12s;font-family:inherit}
+input:not([type=radio]):not([type=checkbox]):not([type=color]):focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+textarea{resize:vertical;min-height:60px}
+.form-grid{display:grid;gap:12px}
+.col2{grid-template-columns:1fr 1fr}
+.col3{grid-template-columns:1fr 1fr 1fr}
+input[type=color]{width:36px;height:36px;padding:2px;border-radius:6px;cursor:pointer}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+.modal{background:var(--sur);border-radius:var(--rxl);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;box-shadow:var(--shl);border:1px solid var(--brd)}
+.modal-lg{max-width:720px}
+.modal-xl{max-width:860px}
+.modal-header{padding:18px 22px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--sur);z-index:1;border-radius:var(--rxl) var(--rxl) 0 0}
+.modal-header h3{font-size:16px;font-weight:700}
+.modal-body{padding:18px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--brd);display:flex;gap:8px;justify-content:flex-end;background:var(--sur2);border-radius:0 0 var(--rxl) var(--rxl)}
+.close-btn{width:28px;height:28px;border-radius:7px;border:none;background:var(--sur2);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;line-height:1;transition:all .12s;flex-shrink:0}
+.close-btn:hover{background:var(--dan-l);color:var(--dan)}
+
+/* Tabs */
+.mtabs{display:flex;gap:2px;background:var(--sur2);border-radius:var(--r);padding:3px;margin-bottom:18px}
+.mtab{flex:1;padding:6px 10px;border:none;background:transparent;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:var(--txt2);transition:all .12s;font-family:inherit;text-align:center}
+.mtab.active{background:var(--sur);color:var(--txt);box-shadow:var(--sh)}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px}
+.toast{background:#1e293b;color:#fff;padding:10px 14px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--shl);animation:toastIn .15s ease;max-width:300px;display:flex;align-items:center;gap:8px;border:1px solid rgba(255,255,255,.08)}
+.toast.ok{background:#064e3b;border-color:rgba(16,185,129,.25)}
+.toast.err{background:#7f1d1d;border-color:rgba(239,68,68,.25)}
+@keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-ok{background:var(--suc-l);color:#065f46}
+.badge-war{background:var(--war-l);color:#92400e}
+.badge-open{background:var(--sur2);color:var(--txt3)}
+.badge-acc{background:var(--acc-l);color:var(--acc-d)}
+.badge-draft{background:#f1f5f9;color:#64748b;border:1px solid var(--brd)}
+.badge-pub{background:var(--suc-l);color:#065f46}
+
+/* Avatar */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0}
+.av-lg{width:38px;height:38px;font-size:13px}
+.av-md{width:28px;height:28px;font-size:10px}
+.av-sm{width:22px;height:22px;font-size:8px}
+
+/* Persons grid */
+.persons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.person-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rl);padding:13px 15px;display:flex;align-items:flex-start;gap:11px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:all .12s;cursor:pointer}
+.person-card:hover{border-color:var(--brd2);box-shadow:var(--shm)}
+.pc-info{flex:1;min-width:0}
+.pc-name{font-size:13px;font-weight:700;color:var(--txt)}
+.pc-role{font-size:11px;color:var(--txt3);margin-top:1px}
+.pc-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+
+/* Search */
+.search-bar{position:relative;flex:1;max-width:300px}
+.search-bar input{padding-left:34px}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--txt3);font-size:14px;pointer-events:none}
+
+/* Groups */
+.group-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rl);overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.group-card+.group-card{margin-top:10px}
+.group-header{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--brd);background:var(--sur2)}
+.group-color-bar{width:4px;height:20px;border-radius:2px;flex-shrink:0}
+.dienst-row{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--brd)}
+.dienst-row:last-child{border-bottom:none}
+
+/* Schicht cards */
+.schicht-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rl);box-shadow:0 1px 2px rgba(0,0,0,.04);overflow:hidden;margin-bottom:12px;transition:box-shadow .12s}
+.schicht-card:hover{box-shadow:var(--shm)}
+.schicht-card-header{padding:13px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--brd)}
+.schicht-date{font-size:12px;font-weight:700;color:var(--txt3);letter-spacing:.3px}
+.schicht-name{font-size:15px;font-weight:700;color:var(--txt);flex:1}
+.schicht-time{font-size:12px;color:var(--txt3)}
+.schicht-body{padding:14px 18px}
+.slot-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--sur2)}
+.slot-row:last-child{border-bottom:none}
+.slot-dienst{font-size:12px;font-weight:600;color:var(--txt2);width:110px;flex-shrink:0}
+.slot-person{flex:1;display:flex;align-items:center;gap:8px}
+.slot-empty{font-size:12px;color:var(--txt3);font-style:italic}
+.slot-actions{display:flex;gap:4px}
+.group-section-label{font-size:10px;font-weight:700;color:var(--txt3);letter-spacing:1px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid var(--sur2);margin-bottom:2px}
+
+/* Wishes / Absences */
+.wish-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--sur2)}
+.wish-row:last-child{border-bottom:none}
+.abs-row{display:flex;align-items:center;gap:10px;padding:7px 12px;border-radius:8px;border:1px solid var(--brd);margin-bottom:6px;background:var(--sur)}
+
+/* Toolbar row */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+
+/* Period selector */
+.period-bar{display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:6px 12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.period-bar label{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.period-bar input{width:120px;border:none;background:transparent;padding:2px 4px;font-size:13px}
+.period-bar input:focus{box-shadow:none;border:none}
+
+/* Checklist */
+.check-row{display:flex;align-items:center;gap:9px;padding:5px 0}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--acc);cursor:pointer}
+.check-row label{font-size:13px;color:var(--txt2);cursor:pointer}
+
+/* Share preview */
+.share-preview{border:1px solid var(--brd);border-radius:var(--r);background:var(--sur2);padding:14px;font-family:monospace;font-size:12px;color:var(--txt2);white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.6}
+.copy-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+
+/* Vorlage cards */
+.vorl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.vorl-card{background:var(--sur);border:1.5px solid var(--brd);border-radius:var(--rl);padding:14px;box-shadow:0 1px 2px rgba(0,0,0,.04);cursor:pointer;transition:all .12s}
+.vorl-card:hover{border-color:var(--acc);box-shadow:var(--shm)}
+
+/* Status dot */
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.dot-suc{background:var(--suc)}
+.dot-war{background:var(--war)}
+.dot-dan{background:var(--dan)}
+.dot-gray{background:var(--txt3)}
+
+/* Sync */
+.sync-code{font-family:monospace;font-size:18px;font-weight:800;letter-spacing:3px;text-align:center;padding:14px;background:var(--sur2);border-radius:var(--r);border:2px dashed var(--brd);color:var(--txt)}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 24px;color:var(--txt3)}
+.empty-title{font-size:15px;font-weight:600;color:var(--txt2);margin-bottom:6px}
+.empty-sub{font-size:13px}
+
+/* Responsive */
+@media(max-width:640px){
+  :root{--sb-w:0px}
+  .sidebar{display:none}
+  .content{margin-left:0}
+  .page-body{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">R3<span>.</span></div>
+    <div class="login-sub">Dienstplan</div>
+    <div class="login-section-label">Als Person einloggen</div>
+    <div id="login-person-list"></div>
+    <div class="login-divider">oder</div>
+    <button class="admin-toggle" onclick="toggleAdminForm()">Admin-Zugang</button>
+    <div class="admin-form" id="admin-form">
+      <div class="form-group" style="margin-top:12px">
+        <label class="field-label">Name</label>
+        <select id="admin-name-sel"></select>
+      </div>
+      <div class="form-group">
+        <label class="field-label">PIN (4-stellig)</label>
+        <input type="password" id="admin-pin-inp" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      </div>
+      <button class="btn btn-acc" style="width:100%" onclick="doAdminLogin()">Als Admin einloggen</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none" class="layout">
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-brand">R3<span>.</span></div>
+      <div class="sb-tagline">Dienstplan</div>
+    </div>
+    <nav class="sb-nav" id="sb-nav"></nav>
+    <div class="sb-footer" id="sb-footer"></div>
+  </aside>
+  <div class="content">
+    <header class="page-header">
+      <div class="page-title" id="page-title"></div>
+      <div class="page-actions" id="page-actions"></div>
+    </header>
+    <main class="page-body" id="page-body"></main>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="mo" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div id="mc" class="modal"></div>
+</div>
+
+<div class="toast-wrap" id="tc"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const DBKEY = 'r3dp3', SESSKEY = 'r3sess';
+let db = {}, session = null;
+
+function defaultDB(){
+  return {
+    meta: { adminPin:'1234', syncCode:'' },
+    persons: [],
+    groups: [
+      {id:'g1',name:'Produktion',color:'#6366f1',dienste:[
+        {id:'d1',name:'Licht'},{id:'d2',name:'MAZ'},{id:'d3',name:'TON'},{id:'d4',name:'PM'},{id:'d5',name:'Stage'}
+      ]},
+      {id:'g2',name:'Cafe',color:'#f59e0b',dienste:[
+        {id:'d6',name:'Cafe-Leitung'},{id:'d7',name:'Cafe'}
+      ]},
+      {id:'g3',name:'People',color:'#10b981',dienste:[
+        {id:'d8',name:'Connectar'},{id:'d9',name:'Schildhalter'},{id:'d10',name:'Begrüßung'}
+      ]},
+      {id:'g4',name:'Worship',color:'#ec4899',dienste:[
+        {id:'d11',name:'Sänger'},{id:'d12',name:'Bass'},{id:'d13',name:'Drums'},
+        {id:'d14',name:'Keys'},{id:'d15',name:'A-Gitarre'},{id:'d16',name:'Guitar'}
+      ]},
+      {id:'g5',name:'Eventleitung',color:'#ef4444',dienste:[
+        {id:'d17',name:'Eventleitung'},{id:'d18',name:'Gastsprecher'}
+      ]}
+    ],
+    templates: [],
+    schichten: [],
+    assignments: [],
+    wishes: [],
+    absences: [],
+    availability: []
+  };
+}
+
+function loadDB(){
+  try{ db = JSON.parse(localStorage.getItem(DBKEY)) || defaultDB(); }
+  catch{ db = defaultDB(); }
+  // migration: ensure meta exists
+  if(!db.meta) db.meta = {adminPin:'1234',syncCode:''};
+  if(!db.absences) db.absences = [];
+  if(!db.availability) db.availability = [];
+  if(!db.groups) db.groups = defaultDB().groups;
+}
+function saveDB(){ localStorage.setItem(DBKEY, JSON.stringify(db)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+function initAuth(){
+  loadDB();
+  const s = sessionStorage.getItem(SESSKEY);
+  if(s){ session = JSON.parse(s); showApp(); }
+  else showLogin();
+}
+
+function showLogin(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  renderLoginPersons();
+}
+
+function renderLoginPersons(){
+  const list = document.getElementById('login-person-list');
+  const sel = document.getElementById('admin-name-sel');
+  if(!db.persons.length){
+    list.innerHTML='<div class="login-empty">Noch keine Personen angelegt.<br>Bitte zuerst als Admin einloggen.</div>';
+    sel.innerHTML='<option value="">Kein Person vorhanden</option>';
+    document.getElementById('admin-form').classList.add('open');
+    return;
+  }
+  list.innerHTML = db.persons.map(p=>`
+    <button class="person-btn" onclick="loginAs('${p.id}')">
+      <div class="av av-md" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div><div class="pb-name">${esc(p.name)}</div><div class="pb-role">${esc(p.role||'Mitarbeiter')}</div></div>
+    </button>`).join('');
+  sel.innerHTML = db.persons.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+}
+
+function toggleAdminForm(){
+  document.getElementById('admin-form').classList.toggle('open');
+}
+
+function loginAs(personId){
+  const p = db.persons.find(x=>x.id===personId);
+  if(!p) return;
+  // Check eventleitung role
+  const role = getPersonRole(personId);
+  session = {personId, role, name: p.name};
+  sessionStorage.setItem(SESSKEY, JSON.stringify(session));
+  showApp();
+}
+
+function doAdminLogin(){
+  const pid = document.getElementById('admin-name-sel').value;
+  const pin = document.getElementById('admin-pin-inp').value;
+  if(pin !== db.meta.adminPin){ toast('Falscher PIN','err'); return; }
+  const p = db.persons.find(x=>x.id===pid);
+  const name = p ? p.name : 'Admin';
+  session = {personId: pid||null, role:'admin', name};
+  sessionStorage.setItem(SESSKEY, JSON.stringify(session));
+  showApp();
+}
+
+function getPersonRole(personId){
+  // Check if person has eventleitung qualification
+  const p = db.persons.find(x=>x.id===personId);
+  if(!p) return 'user';
+  if((p.qualifications||[]).includes('d17')) return 'eventleitung';
+  return 'user';
+}
+
+function logout(){
+  session = null;
+  sessionStorage.removeItem(SESSKEY);
+  showLogin();
+}
+
+function isAdmin(){ return session && session.role==='admin'; }
+function isEventleitung(){ return session && (session.role==='eventleitung'||session.role==='admin'); }
+
+function canEditSchicht(schichtId){
+  if(isAdmin()) return true;
+  if(!session) return false;
+  // Eventleitung: check if person is assigned to Eventleitung group slot in this schicht
+  const s = db.schichten.find(x=>x.id===schichtId);
+  if(!s) return false;
+  const elvGroup = db.groups.find(g=>g.name==='Eventleitung');
+  if(!elvGroup) return false;
+  const elvDienstIds = (elvGroup.dienste||[]).map(d=>d.id);
+  const elvSlots = (s.slots||[]).filter(sl=>elvDienstIds.includes(sl.dienstId));
+  return elvSlots.some(sl=> db.assignments.some(a=>a.slotId===sl.id&&a.personId===session.personId));
+}
+
+function canSeeSchicht(s){
+  if(isAdmin()) return true;
+  if(!session) return false;
+  if(!s.published) return canEditSchicht(s.id);
+  // Published: user sees if assigned
+  return db.assignments.some(a=>a.schichtId===s.id&&a.personId===session.personId);
+}
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+let currentView = 'dienstplan';
+
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  renderNav();
+  showView(currentView);
+}
+
+const VIEWS = {
+  admin: [
+    {id:'dienstplan', label:'Dienstplan'},
+    {id:'personen', label:'Personen'},
+    {id:'gruppen', label:'Gruppen & Dienste'},
+    {id:'vorlagen', label:'Vorlagen'},
+    {id:'verfuegbarkeiten', label:'Verfügbarkeiten'},
+    {id:'statistik', label:'Statistik'},
+    {id:'einstellungen', label:'Einstellungen'},
+  ],
+  eventleitung: [
+    {id:'dienstplan', label:'Dienstplan'},
+    {id:'verfuegbarkeiten', label:'Verfügbarkeiten'},
+  ],
+  user: [
+    {id:'dienstplan', label:'Mein Dienstplan'},
+  ]
+};
+
+function renderNav(){
+  const role = session?.role||'user';
+  const views = VIEWS[role]||VIEWS.user;
+  document.getElementById('sb-nav').innerHTML = views.map(v=>`
+    <button class="nav-item${currentView===v.id?' active':''}" onclick="showView('${v.id}')">${esc(v.label)}</button>
+  `).join('');
+  const p = session?.personId ? db.persons.find(x=>x.id===session.personId) : null;
+  const roleLabel = role==='admin'?'Admin':role==='eventleitung'?'Eventleitung':'Mitarbeiter';
+  document.getElementById('sb-footer').innerHTML=`
+    <div class="user-chip">
+      ${p?`<div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>`:'<div class="av av-sm" style="background:#6366f1">A</div>'}
+      <div class="user-chip-info">
+        <div class="user-chip-name">${esc(session?.name||'Admin')}</div>
+        <div class="user-chip-role">${roleLabel}</div>
+      </div>
+      <button class="logout-btn" onclick="logout()">Raus</button>
+    </div>`;
+}
+
+function showView(v){
+  currentView = v;
+  renderNav();
+  const renders = {
+    dienstplan: renderDienstplan,
+    personen: renderPersonen,
+    gruppen: renderGruppen,
+    vorlagen: renderVorlagen,
+    verfuegbarkeiten: renderVerfuegbarkeiten,
+    statistik: renderStatistik,
+    einstellungen: renderEinstellungen,
+  };
+  (renders[v]||renderDienstplan)();
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: PERSONEN
+═══════════════════════════════════════════ */
+let personSearch = '';
+
+function renderPersonen(){
+  document.getElementById('page-title').textContent = 'Personen';
+  document.getElementById('page-actions').innerHTML=`
+    <div class="search-bar">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><line x1="13.5" y1="13.5" x2="18" y2="18"/></svg>
+      <input type="text" placeholder="Suchen..." value="${esc(personSearch)}" oninput="personSearch=this.value;renderPersonsList()">
+    </div>
+    <button class="btn btn-acc btn-sm" onclick="openPersonModal()">+ Person</button>`;
+  document.getElementById('page-body').innerHTML=`<div id="persons-list"></div>`;
+  renderPersonsList();
+}
+
+function renderPersonsList(){
+  const q = personSearch.toLowerCase();
+  const filtered = db.persons.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.role||'').toLowerCase().includes(q));
+  const el = document.getElementById('persons-list');
+  if(!el) return;
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty"><div class="empty-title">${personSearch?'Keine Treffer':'Noch keine Personen'}</div><div class="empty-sub">${personSearch?'Suchbegriff ändern':'Lege die erste Person an.'}</div></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="persons-grid">${filtered.map(p=>renderPersonCard(p)).join('')}</div>`;
+}
+
+function renderPersonCard(p){
+  const quals = (p.qualifications||[]).map(did=>{
+    for(const g of db.groups) for(const d of (g.dienste||[])) if(d.id===did) return `<span class="tag" style="background:${g.color}22;color:${g.color}">${esc(d.name)}</span>`;
+    return '';
+  }).join('');
+  return `<div class="person-card" onclick="openPersonModal('${p.id}')">
+    <div class="av av-lg" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+    <div class="pc-info">
+      <div class="pc-name">${esc(p.name)}</div>
+      <div class="pc-role">${esc(p.role||'Mitarbeiter')}${p.email?` · ${esc(p.email)}`:''}</div>
+      ${quals?`<div class="pc-tags">${quals}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function openPersonModal(id){
+  const p = id ? db.persons.find(x=>x.id===id) : null;
+  // Build qualifications checkboxes
+  const qualCbs = db.groups.map(g=>`
+    <div style="margin-bottom:8px">
+      <div style="font-size:11px;font-weight:700;color:${g.color};text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${esc(g.name)}</div>
+      ${(g.dienste||[]).map(d=>`
+        <div class="check-row">
+          <input type="checkbox" id="q_${d.id}" ${(p?.qualifications||[]).includes(d.id)?'checked':''}>
+          <label for="q_${d.id}">${esc(d.name)}</label>
+        </div>`).join('')}
+    </div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>${p?'Person bearbeiten':'Neue Person'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Name</label><input id="pm-name" value="${esc(p?.name||'')}"></div>
+        <div class="form-group"><label class="field-label">Farbe</label><input type="color" id="pm-color" value="${p?.color||'#6366f1'}"></div>
+      </div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Rolle</label>
+          <select id="pm-role">
+            ${['Mitarbeiter','Assistenz','Trainee','Leiter'].map(r=>`<option${(p?.role||'Mitarbeiter')===r?' selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group"><label class="field-label">E-Mail</label><input id="pm-email" type="email" value="${esc(p?.email||'')}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Notizen</label><textarea id="pm-notes" rows="2">${esc(p?.notes||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">Qualifikationen</label><div style="max-height:200px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r);padding:10px">${qualCbs}</div></div>
+    </div>
+    <div class="modal-footer">
+      ${p?`<button class="btn btn-dan-ghost btn-sm" onclick="deletePerson('${id}')">Löschen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="savePerson('${id||''}')">Speichern</button>
+    </div>`);
+  document.getElementById('pm-name').focus();
+}
+
+function savePerson(id){
+  const name = document.getElementById('pm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const quals = [...document.querySelectorAll('[id^="q_"]:checked')].map(el=>el.id.slice(2));
+  const data = {
+    name, color: document.getElementById('pm-color').value,
+    role: document.getElementById('pm-role').value,
+    email: document.getElementById('pm-email').value.trim(),
+    notes: document.getElementById('pm-notes').value.trim(),
+    qualifications: quals
+  };
+  if(id){ Object.assign(db.persons.find(x=>x.id===id), data); }
+  else { db.persons.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); renderPersonsList(); toast('Gespeichert','ok');
+}
+
+function deletePerson(id){
+  if(!confirm('Person wirklich löschen?')) return;
+  db.persons = db.persons.filter(x=>x.id!==id);
+  db.assignments = db.assignments.filter(x=>x.personId!==id);
+  db.wishes = db.wishes.filter(x=>x.personId!==id);
+  db.absences = db.absences.filter(x=>x.personId!==id);
+  saveDB(); closeModal(); renderPersonsList(); toast('Gelöscht');
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: GRUPPEN
+═══════════════════════════════════════════ */
+function renderGruppen(){
+  document.getElementById('page-title').textContent = 'Gruppen & Dienste';
+  document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openGroupModal()">+ Gruppe</button>`;
+  document.getElementById('page-body').innerHTML=`<div id="groups-list"></div>`;
+  renderGroupsList();
+}
+
+function renderGroupsList(){
+  const el = document.getElementById('groups-list');
+  if(!el) return;
+  if(!db.groups.length){ el.innerHTML='<div class="empty"><div class="empty-title">Keine Gruppen</div></div>'; return; }
+  el.innerHTML = db.groups.map(g=>`
+    <div class="group-card">
+      <div class="group-header">
+        <div class="group-color-bar" style="background:${g.color}"></div>
+        <span style="font-size:13px;font-weight:700;flex:1">${esc(g.name)}</span>
+        <button class="btn btn-ghost btn-xs" onclick="openGroupModal('${g.id}')">Bearbeiten</button>
+        <button class="btn btn-ghost btn-xs" onclick="addDienstToGroup('${g.id}')">+ Dienst</button>
+      </div>
+      ${(g.dienste||[]).map(d=>`
+        <div class="dienst-row">
+          <span style="font-size:13px;font-weight:500">${esc(d.name)}</span>
+          <button class="btn btn-dan-ghost btn-xs" onclick="deleteDienst('${g.id}','${d.id}')">Entfernen</button>
+        </div>`).join('')}
+      ${!(g.dienste||[]).length?'<div style="padding:10px 16px;font-size:12px;color:var(--txt3)">Keine Dienste</div>':''}
+    </div>`).join('');
+}
+
+function openGroupModal(id){
+  const g = id ? db.groups.find(x=>x.id===id) : null;
+  openModal(`
+    <div class="modal-header"><h3>${g?'Gruppe bearbeiten':'Neue Gruppe'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Name</label><input id="gm-name" value="${esc(g?.name||'')}"></div>
+        <div class="form-group"><label class="field-label">Farbe</label><input type="color" id="gm-color" value="${g?.color||'#6366f1'}"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${g?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteGroup('${id}')">Löschen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveGroup('${id||''}')">Speichern</button>
+    </div>`);
+}
+
+function saveGroup(id){
+  const name = document.getElementById('gm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const color = document.getElementById('gm-color').value;
+  if(id){ Object.assign(db.groups.find(x=>x.id===id),{name,color}); }
+  else { db.groups.push({id:uid(),name,color,dienste:[]}); }
+  saveDB(); closeModal(); renderGroupsList(); toast('Gespeichert','ok');
+}
+
+function deleteGroup(id){
+  if(!confirm('Gruppe löschen?')) return;
+  db.groups = db.groups.filter(x=>x.id!==id);
+  saveDB(); closeModal(); renderGroupsList();
+}
+
+function addDienstToGroup(gid){
+  const name = prompt('Name des neuen Dienstes:');
+  if(!name?.trim()) return;
+  const g = db.groups.find(x=>x.id===gid);
+  if(!g) return;
+  if(!g.dienste) g.dienste=[];
+  g.dienste.push({id:uid(), name:name.trim()});
+  saveDB(); renderGroupsList(); toast('Dienst hinzugefügt','ok');
+}
+
+function deleteDienst(gid, did){
+  const g = db.groups.find(x=>x.id===gid);
+  if(!g) return;
+  g.dienste = (g.dienste||[]).filter(d=>d.id!==did);
+  saveDB(); renderGroupsList();
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: VORLAGEN
+═══════════════════════════════════════════ */
+function renderVorlagen(){
+  document.getElementById('page-title').textContent = 'Vorlagen';
+  document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openTemplateModal()">+ Vorlage</button>`;
+  document.getElementById('page-body').innerHTML=`<div id="vorl-list"></div>`;
+  renderVorlList();
+}
+
+function renderVorlList(){
+  const el = document.getElementById('vorl-list');
+  if(!el) return;
+  if(!db.templates.length){
+    el.innerHTML='<div class="empty"><div class="empty-title">Keine Vorlagen</div><div class="empty-sub">Erstelle Vorlagen für wiederkehrende Events.</div></div>';
+    return;
+  }
+  el.innerHTML=`<div class="vorl-grid">${db.templates.map(t=>`
+    <div class="vorl-card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px">${esc(t.name)}</div>
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:10px">${t.timeStart||''}${t.timeEnd?' – '+t.timeEnd:''} &middot; ${(t.slots||[]).length} Slots</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-acc btn-xs" onclick="useTemplate('${t.id}')">Verwenden</button>
+        <button class="btn btn-ghost btn-xs" onclick="openTemplateModal('${t.id}')">Bearbeiten</button>
+        <button class="btn btn-dan-ghost btn-xs" onclick="deleteTemplate('${t.id}')">Löschen</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function openTemplateModal(id){
+  const t = id ? db.templates.find(x=>x.id===id) : null;
+  const slotOpts = buildSlotOptions();
+  const slotRows = (t?.slots||[]).map(sl=>`
+    <div class="dienst-row" id="tsl_${sl.id}">
+      <span style="font-size:12px;font-weight:600">${getGroupName(sl.groupId)} / ${getDienstName(sl.dienstId)}</span>
+      <button class="btn btn-dan-ghost btn-xs" onclick="removeTSlot('${sl.id}')">&#215;</button>
+    </div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>${t?'Vorlage bearbeiten':'Neue Vorlage'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Name</label><input id="tm-name" value="${esc(t?.name||'')}"></div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Start</label><input type="time" id="tm-start" value="${t?.timeStart||''}"></div>
+        <div class="form-group"><label class="field-label">Ende</label><input type="time" id="tm-end" value="${t?.timeEnd||''}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Slots</label>
+        <div id="tm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px">${slotRows||'<div style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="tm-slot-sel" style="flex:1">${slotOpts}</select>
+          <button class="btn btn-sec btn-sm" onclick="addTSlot()">Hinzufügen</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${t?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteTemplate('${id}');closeModal()">Löschen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveTemplate('${id||''}')">Speichern</button>
+    </div>`,'modal-lg');
+  window._tSlots = JSON.parse(JSON.stringify(t?.slots||[]));
+}
+
+function buildSlotOptions(){
+  return db.groups.map(g=>`<optgroup label="${esc(g.name)}">${(g.dienste||[]).map(d=>`<option value="${g.id}|${d.id}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('');
+}
+
+function addTSlot(){
+  const val = document.getElementById('tm-slot-sel').value;
+  if(!val) return;
+  const [groupId,dienstId] = val.split('|');
+  const slot = {id:uid(), groupId, dienstId};
+  window._tSlots.push(slot);
+  const cont = document.getElementById('tm-slots');
+  if(cont.querySelector('[style*="color:var(--txt3)"]')) cont.innerHTML='';
+  const row = document.createElement('div');
+  row.className='dienst-row'; row.id=`tsl_${slot.id}`;
+  row.innerHTML=`<span style="font-size:12px;font-weight:600">${getGroupName(groupId)} / ${getDienstName(dienstId)}</span><button class="btn btn-dan-ghost btn-xs" onclick="removeTSlot('${slot.id}')">&#215;</button>`;
+  cont.appendChild(row);
+}
+
+function removeTSlot(sid){
+  window._tSlots = (window._tSlots||[]).filter(s=>s.id!==sid);
+  document.getElementById('tsl_'+sid)?.remove();
+}
+
+function saveTemplate(id){
+  const name = document.getElementById('tm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const data = {name, timeStart:document.getElementById('tm-start').value, timeEnd:document.getElementById('tm-end').value, slots: window._tSlots||[]};
+  if(id){ Object.assign(db.templates.find(x=>x.id===id),data); }
+  else { db.templates.push({id:uid(),...data}); }
+  saveDB(); closeModal(); renderVorlList(); toast('Vorlage gespeichert','ok');
+}
+
+function deleteTemplate(id){
+  db.templates = db.templates.filter(x=>x.id!==id);
+  saveDB(); renderVorlList(); toast('Gelöscht');
+}
+
+function useTemplate(tid){
+  openSchichtModal(null, tid);
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: DIENSTPLAN
+═══════════════════════════════════════════ */
+let dpFilter = {from:'', to:''};
+
+function renderDienstplan(){
+  const title = isAdmin()||isEventleitung() ? 'Dienstplan' : 'Mein Dienstplan';
+  document.getElementById('page-title').textContent = title;
+  let actions = '';
+  if(isAdmin()){
+    actions = `
+      <button class="btn btn-sec btn-sm" onclick="openAutoModal()">Auto-Einteilung</button>
+      <button class="btn btn-sec btn-sm" onclick="openSharePeriodModal()">Teilen</button>
+      <button class="btn btn-acc btn-sm" onclick="openSchichtModal()">+ Schicht</button>`;
+  }
+  document.getElementById('page-actions').innerHTML = actions;
+
+  const filterBar = isAdmin() ? `
+    <div class="toolbar">
+      <div class="period-bar">
+        <label>Von</label><input type="date" value="${dpFilter.from}" onchange="dpFilter.from=this.value;renderSchichtenList()">
+        <label style="margin-left:8px">Bis</label><input type="date" value="${dpFilter.to}" onchange="dpFilter.to=this.value;renderSchichtenList()">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="dpFilter={from:'',to:''};renderSchichtenList()">Zurücksetzen</button>
+    </div>` : '';
+
+  document.getElementById('page-body').innerHTML = filterBar + `<div id="schichten-list"></div>`;
+  renderSchichtenList();
+}
+
+function renderSchichtenList(){
+  const el = document.getElementById('schichten-list');
+  if(!el) return;
+  let list = db.schichten.filter(s=>canSeeSchicht(s));
+  if(dpFilter.from) list = list.filter(s=>s.date>=dpFilter.from);
+  if(dpFilter.to) list = list.filter(s=>s.date<=dpFilter.to);
+  list.sort((a,b)=>a.date<b.date?-1:1);
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="empty-title">Keine Schichten</div><div class="empty-sub">'+(isAdmin()?'Erstelle eine neue Schicht oder nutze eine Vorlage.':'Noch keine Schichten verfügbar.')+'</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(s=>renderSchichtCard(s)).join('');
+}
+
+function renderSchichtCard(s){
+  const grouped = groupSlots(s.slots||[]);
+  const totalSlots = (s.slots||[]).length;
+  const filled = (s.slots||[]).filter(sl=>db.assignments.some(a=>a.slotId===sl.id)).length;
+  const canEdit = isAdmin() || canEditSchicht(s.id);
+  const pubBadge = s.published ? '<span class="badge badge-pub">Veröffentlicht</span>' : '<span class="badge badge-draft">Entwurf</span>';
+  const availResps = db.availability.filter(a=>a.schichtId===s.id);
+  const availJa = availResps.filter(a=>a.avail==='ja').length;
+  const availNein = availResps.filter(a=>a.avail==='nein').length;
+  const availBadge = s.collectAvail ? `<span class="badge" style="background:#ede9fe;color:#6d28d9;cursor:${isAdmin()?'pointer':'default'}" ${isAdmin()?`onclick="openAvailAdminModal('${s.id}')"`:''}>Abfrage: ${availJa} ja / ${availNein} nein</span>` : '';
+  const myAvail = session?.personId ? db.availability.find(a=>a.schichtId===s.id&&a.personId===session.personId) : null;
+
+  let slotsHTML = '';
+  for(const [gid, slots] of Object.entries(grouped)){
+    const g = db.groups.find(x=>x.id===gid);
+    slotsHTML += `<div class="group-section-label" style="color:${g?.color||'var(--txt3)'}">${esc(g?.name||gid)}</div>`;
+    slotsHTML += slots.map(sl=>{
+      const asgn = db.assignments.find(a=>a.slotId===sl.id);
+      const person = asgn ? db.persons.find(p=>p.id===asgn.personId) : null;
+      const dienst = getDienstName(sl.dienstId);
+      let personEl = '';
+      if(person){
+        personEl = `<div class="av av-sm" style="background:${person.color||'#6366f1'}">${initials(person.name)}</div><span style="font-size:12px;font-weight:600">${esc(person.name)}</span>`;
+      } else {
+        personEl = `<span class="slot-empty">Offen</span>`;
+      }
+      const actions = canEdit ? `
+        <button class="btn btn-ghost btn-xs" onclick="openAssignModal('${s.id}','${sl.id}','${sl.dienstId}')">Zuweisen</button>
+        ${asgn?`<button class="btn btn-dan-ghost btn-xs" onclick="removeAssignment('${sl.id}')">&#215;</button>`:''}` : '';
+      return `<div class="slot-row">
+        <div class="slot-dienst">${esc(dienst)}</div>
+        <div class="slot-person">${personEl}</div>
+        <div class="slot-actions">${actions}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const userAvailBtn = (!isAdmin() && s.collectAvail) ? `<button class="btn btn-xs" style="background:${myAvail?myAvail.avail==='ja'?'var(--suc-l)':'var(--dan-l)':'var(--acc-l)'};color:${myAvail?myAvail.avail==='ja'?'#065f46':'var(--dan)':'var(--acc-d)'}" onclick="openAvailUserModal('${s.id}')">${myAvail?myAvail.avail==='ja'?'Ich kann':'Ich kann nicht':'Verfügbarkeit angeben'}</button>` : '';
+  const headerActions = canEdit ? `
+    ${userAvailBtn}
+    <button class="btn btn-ghost btn-xs" onclick="openWishModal('${s.id}')">Wünsche</button>
+    <button class="btn btn-ghost btn-xs" onclick="openShareSchichtModal('${s.id}')">Teilen</button>
+    ${isAdmin()?`
+    <button class="btn btn-ghost btn-xs" onclick="openSchichtModal('${s.id}')">Bearbeiten</button>
+    ${s.published?`<button class="btn btn-dan-ghost btn-xs" onclick="unpublishSchicht('${s.id}')">Zurückziehen</button>`:`<button class="btn btn-suc btn-xs" onclick="publishSchicht('${s.id}')">Veröffentlichen</button>`}
+    `:''}` : `${userAvailBtn}<button class="btn btn-ghost btn-xs" onclick="openShareSchichtModal('${s.id}')">Teilen</button>`;
+
+  return `<div class="schicht-card" id="sc_${s.id}">
+    <div class="schicht-card-header">
+      <div>
+        <div class="schicht-date">${fmtDate(s.date)}</div>
+        <div class="schicht-name">${esc(s.name)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${pubBadge}
+        ${availBadge}
+        <span class="badge ${filled===totalSlots&&totalSlots>0?'badge-ok':'badge-war'}">${filled}/${totalSlots}</span>
+        ${s.timeStart?`<span class="schicht-time">${s.timeStart}${s.timeEnd?' – '+s.timeEnd:''}</span>`:''}
+        <div style="display:flex;gap:4px">${headerActions}</div>
+      </div>
+    </div>
+    <div class="schicht-body">${slotsHTML||'<div style="font-size:12px;color:var(--txt3)">Keine Slots</div>'}</div>
+    ${s.notes?`<div style="padding:8px 18px 12px;font-size:12px;color:var(--txt3);border-top:1px solid var(--sur2)">${esc(s.notes)}</div>`:''}
+  </div>`;
+}
+
+function groupSlots(slots){
+  const r = {};
+  for(const sl of slots){
+    if(!r[sl.groupId]) r[sl.groupId]=[];
+    r[sl.groupId].push(sl);
+  }
+  return r;
+}
+
+function openSchichtModal(id, templateId){
+  const s = id ? db.schichten.find(x=>x.id===id) : null;
+  const t = templateId ? db.templates.find(x=>x.id===templateId) : null;
+  const slotOpts = buildSlotOptions();
+  const existingSlots = s ? s.slots : (t ? t.slots.map(sl=>({...sl,id:uid(),allowDouble:false,blocked:[]})) : []);
+  window._schSlots = JSON.parse(JSON.stringify(existingSlots));
+
+  const slotRows = window._schSlots.map(sl=>buildSchSlotRow(sl)).join('');
+
+  openModal(`
+    <div class="modal-header"><h3>${s?'Schicht bearbeiten':t?'Schicht aus Vorlage':'Neue Schicht'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Name</label><input id="sm-name" value="${esc(s?.name||t?.name||'')}"></div>
+        <div class="form-group"><label class="field-label">Datum</label><input type="date" id="sm-date" value="${s?.date||''}"></div>
+      </div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Start</label><input type="time" id="sm-start" value="${s?.timeStart||t?.timeStart||''}"></div>
+        <div class="form-group"><label class="field-label">Ende</label><input type="time" id="sm-end" value="${s?.timeEnd||t?.timeEnd||''}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Notizen</label><textarea id="sm-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
+      <div class="form-group">
+        <div class="check-row"><input type="checkbox" id="sm-avail" ${s?.collectAvail?'checked':''}><label for="sm-avail">Verfügbarkeitsabfrage aktivieren (Personen können angeben, ob sie Zeit haben)</label></div>
+      </div>
+      <div class="form-group"><label class="field-label">Slots</label>
+        <div id="sm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px">${slotRows||'<div id="sm-empty" style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select id="sm-slot-sel" style="flex:1">${slotOpts}</select>
+          <button class="btn btn-sec btn-sm" onclick="addSchSlot()">+ Slot</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${s?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteSchicht('${id}')">Löschen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveSchicht('${id||''}')">Speichern</button>
+    </div>`,'modal-lg');
+}
+
+function buildSchSlotRow(sl){
+  const blocked = (sl.blocked||[]).map(pid=>{const p=db.persons.find(x=>x.id===pid);return p?initials(p.name):'?';}).join(', ');
+  return `<div class="dienst-row" id="ssl_${sl.id}" style="flex-wrap:wrap;gap:6px">
+    <span style="font-size:12px;font-weight:600;flex:1">${getGroupName(sl.groupId)} / ${getDienstName(sl.dienstId)}</span>
+    <label style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:4px">
+      <input type="checkbox" ${sl.allowDouble?'checked':''} onchange="setSlotDouble('${sl.id}',this.checked)"> Doppelbesetzung
+    </label>
+    <button class="btn btn-ghost btn-xs" onclick="openSchBlockModal('${sl.id}')">Gesperrt${blocked?': '+blocked:''}</button>
+    <button class="btn btn-dan-ghost btn-xs" onclick="removeSchSlot('${sl.id}')">&#215;</button>
+  </div>`;
+}
+
+function addSchSlot(){
+  const val = document.getElementById('sm-slot-sel').value;
+  if(!val) return;
+  const [groupId,dienstId] = val.split('|');
+  const sl = {id:uid(), groupId, dienstId, allowDouble:false, blocked:[]};
+  window._schSlots.push(sl);
+  const cont = document.getElementById('sm-slots');
+  const empty = document.getElementById('sm-empty');
+  if(empty) empty.remove();
+  const row = document.createElement('div');
+  row.innerHTML = buildSchSlotRow(sl);
+  cont.appendChild(row.firstElementChild);
+}
+
+function removeSchSlot(sid){
+  window._schSlots = (window._schSlots||[]).filter(s=>s.id!==sid);
+  document.getElementById('ssl_'+sid)?.remove();
+}
+
+function setSlotDouble(sid, val){
+  const sl = (window._schSlots||[]).find(s=>s.id===sid);
+  if(sl) sl.allowDouble = val;
+}
+
+function openSchBlockModal(slotId){
+  const sl = (window._schSlots||[]).find(s=>s.id===slotId);
+  if(!sl) return;
+  // Show inline prompt or mini modal
+  const names = db.persons.map(p=>`
+    <div class="check-row">
+      <input type="checkbox" id="blk_${p.id}" ${(sl.blocked||[]).includes(p.id)?'checked':''}>
+      <label for="blk_${p.id}">${esc(p.name)}</label>
+    </div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>Gesperrte Personen</h3><button class="close-btn" onclick="closeSchBlockModal('${slotId}')">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">Wähle Personen, die für diesen Slot nicht eingeteilt werden können.</p>
+      ${names||'<p style="color:var(--txt3)">Keine Personen angelegt.</p>'}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-acc btn-sm" onclick="saveSchBlock('${slotId}')">OK</button>
+    </div>`);
+}
+
+function saveSchBlock(slotId){
+  const sl = (window._schSlots||[]).find(s=>s.id===slotId);
+  if(!sl) return;
+  sl.blocked = [...document.querySelectorAll('[id^="blk_"]:checked')].map(el=>el.id.slice(4));
+  closeModal();
+  // Re-open schicht modal? Just update button text
+  const btn = document.querySelector(`#ssl_${slotId} button.btn-ghost`);
+  if(btn){
+    const blocked = (sl.blocked||[]).map(pid=>{const p=db.persons.find(x=>x.id===pid);return p?initials(p.name):'?';}).join(', ');
+    btn.textContent = 'Gesperrt'+(blocked?': '+blocked:'');
+  }
+}
+
+function closeSchBlockModal(slotId){
+  closeModal();
+}
+
+function saveSchicht(id){
+  const name = document.getElementById('sm-name').value.trim();
+  const date = document.getElementById('sm-date').value;
+  if(!name){ toast('Name fehlt','err'); return; }
+  if(!date){ toast('Datum fehlt','err'); return; }
+  const data = {
+    name, date,
+    timeStart: document.getElementById('sm-start').value,
+    timeEnd: document.getElementById('sm-end').value,
+    notes: document.getElementById('sm-notes').value.trim(),
+    collectAvail: document.getElementById('sm-avail').checked,
+    slots: window._schSlots||[]
+  };
+  if(id){
+    const s = db.schichten.find(x=>x.id===id);
+    Object.assign(s, data);
+  } else {
+    db.schichten.push({id:uid(), published:false, ...data});
+  }
+  saveDB(); closeModal(); renderSchichtenList(); toast('Schicht gespeichert','ok');
+}
+
+function deleteSchicht(id){
+  if(!confirm('Schicht löschen?')) return;
+  db.schichten = db.schichten.filter(x=>x.id!==id);
+  db.assignments = db.assignments.filter(x=>x.schichtId!==id);
+  db.wishes = db.wishes.filter(x=>x.schichtId!==id);
+  saveDB(); closeModal(); renderSchichtenList();
+}
+
+function publishSchicht(id){
+  const s = db.schichten.find(x=>x.id===id);
+  if(s){ s.published=true; saveDB(); renderSchichtenList(); toast('Veröffentlicht','ok'); }
+}
+
+function unpublishSchicht(id){
+  const s = db.schichten.find(x=>x.id===id);
+  if(s){ s.published=false; saveDB(); renderSchichtenList(); toast('Zurückgezogen'); }
+}
+
+/* ═══════════════════════════════════════════
+   ASSIGN MODAL
+═══════════════════════════════════════════ */
+let _assignCtx = {};
+
+function openAssignModal(schichtId, slotId, dienstId){
+  const s = db.schichten.find(x=>x.id===schichtId);
+  const slot = (s?.slots||[]).find(x=>x.id===slotId);
+  const current = db.assignments.find(a=>a.slotId===slotId);
+  const currentPerson = current ? db.persons.find(p=>p.id===current.personId) : null;
+  _assignCtx = {schichtId, slotId, dienstId};
+
+  // Eligible persons: qualified for dienst, not blocked
+  const blocked = slot?.blocked||[];
+  const alreadyInSchicht = db.assignments.filter(a=>a.schichtId===schichtId).map(a=>a.personId);
+  const persons = db.persons.filter(p=>{
+    if(blocked.includes(p.id)) return false;
+    const hasQual = (p.qualifications||[]).includes(dienstId);
+    return hasQual;
+  });
+  const allPersons = db.persons.filter(p=>!blocked.includes(p.id));
+
+  // Wish info for this schicht
+  const schichtWishes = db.wishes.filter(w=>w.schichtId===schichtId);
+
+  const personRows = (persons.length ? persons : allPersons).map(p=>{
+    const w = schichtWishes.find(w=>w.personId===p.id);
+    const inSchicht = alreadyInSchicht.includes(p.id)&&p.id!==current?.personId;
+    const wishLabel = w ? (w.type==='frei'?'<span style="color:var(--dan);font-size:10px">Wunschfrei</span>':'<span style="color:var(--suc);font-size:10px">Wunschdienst</span>') : '';
+    const inLabel = inSchicht&&!slot?.allowDouble ? '<span style="color:var(--txt3);font-size:10px">Bereits eingeteilt</span>' : '';
+    const disabled = inSchicht&&!slot?.allowDouble ? 'opacity:.4;pointer-events:none' : '';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sur2);${disabled}">
+      <div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(p.name)}</div><div style="display:flex;gap:6px">${wishLabel}${inLabel}</div></div>
+      <button class="btn btn-acc btn-xs" onclick="doAssign('${p.id}')">Zuweisen</button>
+    </div>`;
+  }).join('');
+
+  const dienstName = getDienstName(dienstId);
+  openModal(`
+    <div class="modal-header"><h3>Zuweisung: ${esc(dienstName)}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      ${currentPerson?`<div style="background:var(--suc-l);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:13px;color:#065f46">Aktuell: <strong>${esc(currentPerson.name)}</strong> <button class="btn btn-dan-ghost btn-xs" style="margin-left:8px" onclick="removeAssignment('${slotId}');closeModal()">Entfernen</button></div>`:''}
+      ${!persons.length&&allPersons.length?'<p style="font-size:12px;color:var(--war);margin-bottom:10px">Keine qualifizierten Personen – zeige alle.</p>':''}
+      <div style="max-height:320px;overflow-y:auto">${personRows||'<p style="color:var(--txt3);font-size:13px">Keine Personen verfügbar.</p>'}</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`);
+}
+
+function doAssign(personId){
+  const {schichtId, slotId} = _assignCtx;
+  db.assignments = db.assignments.filter(a=>a.slotId!==slotId);
+  db.assignments.push({id:uid(), schichtId, slotId, personId});
+  saveDB(); closeModal(); renderSchichtenList(); toast('Zugewiesen','ok');
+}
+
+function removeAssignment(slotId){
+  db.assignments = db.assignments.filter(a=>a.slotId!==slotId);
+  saveDB(); renderSchichtenList(); toast('Zuweisung entfernt');
+}
+
+/* ═══════════════════════════════════════════
+   WISH MODAL
+═══════════════════════════════════════════ */
+function openWishModal(schichtId){
+  const s = db.schichten.find(x=>x.id===schichtId);
+  const wishes = db.wishes.filter(w=>w.schichtId===schichtId);
+  const wishRows = wishes.map(w=>{
+    const p = db.persons.find(x=>x.id===w.personId);
+    const label = w.type==='frei'?'Wunschfrei':'Wunschdienst';
+    const col = w.type==='frei'?'var(--dan)':'var(--suc)';
+    return `<div class="wish-row">
+      <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${esc(p?.name||'Unbekannt')}</div>
+        <div style="font-size:11px;font-weight:700;color:${col}">${label}${w.note?` · ${esc(w.note)}`:''}</div>
+      </div>
+      <button class="btn btn-dan-ghost btn-xs" onclick="deleteWish('${w.id}','${schichtId}')">&#215;</button>
+    </div>`;
+  }).join('');
+
+  const personOpts = db.persons.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>Wünsche: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px">${wishRows||'<p style="color:var(--txt3);font-size:13px">Keine Wünsche eingetragen.</p>'}</div>
+      <div style="border-top:1px solid var(--brd);padding-top:14px">
+        <div class="form-group"><label class="field-label">Person</label><select id="wm-person">${personOpts}</select></div>
+        <div class="form-group"><label class="field-label">Typ</label>
+          <select id="wm-type"><option value="frei">Wunschfrei</option><option value="dienst">Wunschdienst</option></select>
+        </div>
+        <div class="form-group"><label class="field-label">Notiz</label><input id="wm-note" placeholder="Optional..."></div>
+        <button class="btn btn-acc btn-sm" onclick="saveWish('${schichtId}')">Wunsch speichern</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`);
+}
+
+function saveWish(schichtId){
+  const personId = document.getElementById('wm-person').value;
+  const type = document.getElementById('wm-type').value;
+  const note = document.getElementById('wm-note').value.trim();
+  // Remove existing wish for this person/schicht combo
+  db.wishes = db.wishes.filter(w=>!(w.personId===personId&&w.schichtId===schichtId));
+  db.wishes.push({id:uid(), schichtId, personId, type, note});
+  saveDB(); openWishModal(schichtId); toast('Wunsch gespeichert','ok');
+}
+
+function deleteWish(id, schichtId){
+  db.wishes = db.wishes.filter(w=>w.id!==id);
+  saveDB(); openWishModal(schichtId);
+}
+
+/* ═══════════════════════════════════════════
+   AUTO-ASSIGN
+═══════════════════════════════════════════ */
+function openAutoModal(){
+  const schichtOpts = db.schichten.filter(s=>!s.published||true).sort((a,b)=>a.date<b.date?-1:1).map(s=>`
+    <div class="check-row"><input type="checkbox" id="au_${s.id}" checked><label for="au_${s.id}">${fmtDate(s.date)} – ${esc(s.name)}</label></div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>Auto-Einteilung</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Schichten</label>
+        <div style="max-height:180px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r);padding:10px">${schichtOpts||'<p style="color:var(--txt3);font-size:12px">Keine Schichten</p>'}</div>
+      </div>
+      <div class="form-group"><label class="field-label">Optionen</label>
+        <div class="check-row"><input type="checkbox" id="ao-qual" checked><label for="ao-qual">Nur qualifizierte Personen</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-frei" checked><label for="ao-frei">Wunschfrei berücksichtigen</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-ndbl" checked><label for="ao-ndbl">Keine Doppelbesetzung pro Schicht</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-fair" checked><label for="ao-fair">Gleichmäßige Verteilung</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-over"><label for="ao-over">Bestehende Zuweisung überschreiben</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="runAuto()">Einteilen</button>
+    </div>`);
+}
+
+function runAuto(){
+  const selSchichten = db.schichten.filter(s=>document.getElementById('au_'+s.id)?.checked);
+  const qualOnly = document.getElementById('ao-qual').checked;
+  const respFrei = document.getElementById('ao-frei').checked;
+  const noDouble = document.getElementById('ao-ndbl').checked;
+  const fair = document.getElementById('ao-fair').checked;
+  const overwrite = document.getElementById('ao-over').checked;
+
+  // Count existing assignments per person
+  const load = {};
+  for(const p of db.persons) load[p.id] = db.assignments.filter(a=>a.personId===p.id).length;
+
+  let count = 0;
+  for(const s of selSchichten){
+    const inSchicht = new Set(db.assignments.filter(a=>a.schichtId===s.id).map(a=>a.personId));
+    const wishes = db.wishes.filter(w=>w.schichtId===s.id);
+    // Sort slots: Wunschdienst persons first
+    for(const slot of (s.slots||[])){
+      if(!overwrite && db.assignments.some(a=>a.slotId===slot.id)) continue;
+      // Remove existing if overwriting
+      if(overwrite) db.assignments = db.assignments.filter(a=>a.slotId!==slot.id);
+
+      const blocked = slot.blocked||[];
+      let candidates = db.persons.filter(p=>{
+        if(blocked.includes(p.id)) return false;
+        if(qualOnly && !(p.qualifications||[]).includes(slot.dienstId)) return false;
+        if(respFrei && wishes.find(w=>w.personId===p.id&&w.type==='frei')) return false;
+        if(noDouble && !slot.allowDouble && inSchicht.has(p.id)) return false;
+        return true;
+      });
+      if(!candidates.length) continue;
+      // Prefer Wunschdienst
+      const wdienst = candidates.filter(p=>wishes.find(w=>w.personId===p.id&&w.type==='dienst'));
+      if(wdienst.length) candidates = wdienst;
+      // Sort by load
+      if(fair) candidates.sort((a,b)=>(load[a.id]||0)-(load[b.id]||0));
+      const chosen = candidates[0];
+      db.assignments.push({id:uid(), schichtId:s.id, slotId:slot.id, personId:chosen.id});
+      load[chosen.id] = (load[chosen.id]||0)+1;
+      inSchicht.add(chosen.id);
+      count++;
+    }
+  }
+  saveDB(); closeModal(); renderSchichtenList(); toast(`${count} Zuweisung(en) erstellt`,'ok');
+}
+
+/* ═══════════════════════════════════════════
+   AVAILABILITY MODALS
+═══════════════════════════════════════════ */
+function openAvailUserModal(schichtId){
+  const s = db.schichten.find(x=>x.id===schichtId);
+  const my = session?.personId ? db.availability.find(a=>a.schichtId===schichtId&&a.personId===session.personId) : null;
+  openModal(`
+    <div class="modal-header"><h3>Verfügbarkeit: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">${fmtDate(s?.date||'')}${s?.timeStart?' · '+s.timeStart+(s?.timeEnd?' – '+s.timeEnd:''):''}</p>
+      <div class="form-group"><label class="field-label">Kannst du?</label>
+        <div style="display:flex;gap:10px">
+          <label style="flex:1;border:2px solid var(--brd);border-radius:var(--r);padding:12px;cursor:pointer;text-align:center;transition:all .12s" id="av-ja-lbl">
+            <input type="radio" name="av-choice" value="ja" style="display:none" ${my?.avail==='ja'?'checked':''} onchange="document.getElementById('av-ja-lbl').style.borderColor='var(--suc)';document.getElementById('av-nein-lbl').style.borderColor='var(--brd)'">
+            <div style="font-size:20px;margin-bottom:4px">✓</div>
+            <div style="font-size:13px;font-weight:700;color:var(--suc)">Ich kann</div>
+          </label>
+          <label style="flex:1;border:2px solid var(--brd);border-radius:var(--r);padding:12px;cursor:pointer;text-align:center;transition:all .12s" id="av-nein-lbl">
+            <input type="radio" name="av-choice" value="nein" style="display:none" ${my?.avail==='nein'?'checked':''} onchange="document.getElementById('av-nein-lbl').style.borderColor='var(--dan)';document.getElementById('av-ja-lbl').style.borderColor='var(--brd)'">
+            <div style="font-size:20px;margin-bottom:4px">✗</div>
+            <div style="font-size:13px;font-weight:700;color:var(--dan)">Ich kann nicht</div>
+          </label>
+        </div>
+      </div>
+      <div class="form-group"><label class="field-label">Notiz (optional)</label><input id="av-note" value="${esc(my?.note||'')}" placeholder="z.B. Komme etwas später..."></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveAvailUser('${schichtId}')">Speichern</button>
+    </div>`);
+  // Apply initial border colors
+  if(my?.avail==='ja') setTimeout(()=>document.getElementById('av-ja-lbl').style.borderColor='var(--suc)',50);
+  if(my?.avail==='nein') setTimeout(()=>document.getElementById('av-nein-lbl').style.borderColor='var(--dan)',50);
+}
+
+function saveAvailUser(schichtId){
+  const choice = document.querySelector('input[name="av-choice"]:checked')?.value;
+  if(!choice){ toast('Bitte auswählen','err'); return; }
+  const note = document.getElementById('av-note').value.trim();
+  db.availability = db.availability.filter(a=>!(a.schichtId===schichtId&&a.personId===session.personId));
+  db.availability.push({id:uid(), schichtId, personId:session.personId, avail:choice, note});
+  saveDB(); closeModal(); renderSchichtenList(); toast('Verfügbarkeit gespeichert','ok');
+}
+
+function openAvailAdminModal(schichtId){
+  const s = db.schichten.find(x=>x.id===schichtId);
+  const resps = db.availability.filter(a=>a.schichtId===schichtId);
+  const ja = resps.filter(r=>r.avail==='ja');
+  const nein = resps.filter(r=>r.avail==='nein');
+  const allPersonIds = new Set([...ja,...nein].map(r=>r.personId));
+  const notAnswered = db.persons.filter(p=>!allPersonIds.has(p.id));
+
+  const makeRows = (list,color,label)=>list.map(r=>{
+    const p=db.persons.find(x=>x.id===r.personId);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--sur2)">
+      <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${esc(p?.name||'?')}</div>${r.note?`<div style="font-size:11px;color:var(--txt3)">${esc(r.note)}</div>`:''}</div>
+      <span style="font-size:11px;font-weight:700;color:${color}">${label}</span>
+    </div>`;
+  }).join('');
+
+  openModal(`
+    <div class="modal-header"><h3>Verfügbarkeiten: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div style="display:flex;gap:10px;margin-bottom:16px">
+        <div style="flex:1;background:var(--suc-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--suc)">${ja.length}</div><div style="font-size:11px;color:#065f46;font-weight:700">KÖNNEN</div></div>
+        <div style="flex:1;background:var(--dan-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--dan)">${nein.length}</div><div style="font-size:11px;color:#991b1b;font-weight:700">KÖNNEN NICHT</div></div>
+        <div style="flex:1;background:var(--sur2);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--txt3)">${notAnswered.length}</div><div style="font-size:11px;color:var(--txt3);font-weight:700">KEINE ANTWORT</div></div>
+      </div>
+      ${makeRows(ja,'var(--suc)','Kann')}
+      ${makeRows(nein,'var(--dan)','Kann nicht')}
+      ${notAnswered.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--sur2);opacity:.5">
+        <div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+        <div style="font-size:13px;font-weight:600">${esc(p.name)}</div>
+        <span style="font-size:11px;color:var(--txt3);margin-left:auto">Keine Antwort</span>
+      </div>`).join('')}
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`,'modal-lg');
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: STATISTIK (Admin only)
+═══════════════════════════════════════════ */
+function renderStatistik(){
+  document.getElementById('page-title').textContent = 'Statistik';
+  document.getElementById('page-actions').innerHTML=`
+    <select id="stat-period" onchange="renderStatistikContent()" style="font-size:13px;padding:6px 10px;border-radius:var(--r);border:1.5px solid var(--brd)">
+      <option value="all">Alle Zeiten</option>
+      <option value="30">Letzter Monat</option>
+      <option value="90">Letzte 3 Monate</option>
+      <option value="365">Letztes Jahr</option>
+    </select>`;
+  document.getElementById('page-body').innerHTML=`<div id="stat-content"></div>`;
+  renderStatistikContent();
+}
+
+function renderStatistikContent(){
+  const days = document.getElementById('stat-period')?.value;
+  let assignments = db.assignments;
+  if(days && days!=='all'){
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-parseInt(days));
+    const cutStr = cutoff.toISOString().slice(0,10);
+    const valid = new Set(db.schichten.filter(s=>s.date>=cutStr).map(s=>s.id));
+    assignments = assignments.filter(a=>valid.has(a.schichtId));
+  }
+
+  const stats = db.persons.map(p=>{
+    const pa = assignments.filter(a=>a.personId===p.id);
+    const byGroup = {};
+    for(const a of pa){
+      const s = db.schichten.find(x=>x.id===a.schichtId);
+      const slot = (s?.slots||[]).find(sl=>sl.id===a.slotId);
+      if(slot){ const gid=slot.groupId; byGroup[gid]=(byGroup[gid]||0)+1; }
+    }
+    return {p, total:pa.length, byGroup};
+  }).sort((a,b)=>b.total-a.total);
+
+  const maxTotal = stats[0]?.total||1;
+  const totalAll = assignments.length;
+
+  // Summary cards
+  const summary = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:16px">
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:28px;font-weight:900;color:var(--acc)">${db.schichten.length}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Schichten</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:28px;font-weight:900;color:var(--acc)">${totalAll}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Einsätze</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:28px;font-weight:900;color:var(--acc)">${db.persons.length}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Personen</div>
+      </div>
+      <div class="card" style="text-align:center;padding:14px">
+        <div style="font-size:28px;font-weight:900;color:var(--acc)">${totalAll?Math.round(totalAll/db.persons.length*10)/10||0:0}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Ø pro Person</div>
+      </div>
+    </div>`;
+
+  const rows = stats.map(({p,total,byGroup})=>{
+    const pct = Math.round((total/maxTotal)*100);
+    const groupPills = Object.entries(byGroup).map(([gid,cnt])=>{
+      const g = db.groups.find(x=>x.id===gid);
+      return `<span class="tag" style="background:${g?.color||'#6366f1'}20;color:${g?.color||'#6366f1'}">${esc(g?.name||gid)}: ${cnt}</span>`;
+    }).join('');
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--sur2)">
+      <div class="av av-md" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px">
+          <span style="font-size:13px;font-weight:700">${esc(p.name)}</span>
+          <span style="font-size:11px;color:var(--txt3)">${esc(p.role||'')}</span>
+          <span style="font-size:15px;font-weight:900;color:${p.color||'var(--acc)'};margin-left:auto">${total}×</span>
+        </div>
+        <div style="background:var(--sur2);border-radius:4px;height:6px;margin-bottom:7px;overflow:hidden">
+          <div style="background:${p.color||'var(--acc)'};height:100%;border-radius:4px;width:${pct}%;transition:width .4s ease"></div>
+        </div>
+        ${groupPills?`<div style="display:flex;flex-wrap:wrap;gap:4px">${groupPills}</div>`:'<span style="font-size:11px;color:var(--txt3)">Noch kein Einsatz</span>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Group breakdown
+  const groupBreakdown = db.groups.map(g=>{
+    const cnt = assignments.filter(a=>{
+      const s=db.schichten.find(x=>x.id===a.schichtId);
+      const sl=(s?.slots||[]).find(sl=>sl.id===a.slotId);
+      return sl?.groupId===g.id;
+    }).length;
+    const pct = Math.round((cnt/(totalAll||1))*100);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sur2)">
+      <div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>
+      <span style="font-size:13px;font-weight:600;flex:1">${esc(g.name)}</span>
+      <span style="font-size:13px;font-weight:800;color:${g.color}">${cnt}×</span>
+      <span style="font-size:11px;color:var(--txt3)">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('stat-content').innerHTML = `
+    ${summary}
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start">
+      <div class="card">
+        <div class="card-header"><h2>Einsätze pro Person</h2></div>
+        <div class="card-body">${rows||'<p style="color:var(--txt3);font-size:13px">Noch keine Daten.</p>'}</div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>Nach Gruppe</h2></div>
+        <div class="card-body">${groupBreakdown||'<p style="color:var(--txt3);font-size:13px">Keine Daten.</p>'}</div>
+      </div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: VERFÜGBARKEITEN
+═══════════════════════════════════════════ */
+function renderVerfuegbarkeiten(){
+  document.getElementById('page-title').textContent = 'Verfügbarkeiten';
+  document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openAbsenceModal()">+ Abwesenheit</button>`;
+
+  const absences = db.absences.sort((a,b)=>a.from<b.from?-1:1);
+  const rows = absences.map(abs=>{
+    const p = db.persons.find(x=>x.id===abs.personId);
+    return `<div class="abs-row">
+      <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${esc(p?.name||'Unbekannt')}</div>
+        <div style="font-size:12px;color:var(--txt3)">${fmtDate(abs.from)}${abs.to&&abs.to!==abs.from?' – '+fmtDate(abs.to):''}${abs.note?' · '+esc(abs.note):''}</div>
+      </div>
+      ${isAdmin()?`<button class="btn btn-ghost btn-xs" onclick="openAbsenceModal('${abs.id}')">Bearbeiten</button>
+      <button class="btn btn-dan-ghost btn-xs" onclick="deleteAbsence('${abs.id}')">&#215;</button>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('page-body').innerHTML=`
+    <div class="card">
+      <div class="card-header"><h2>Abwesenheiten</h2></div>
+      <div class="card-body">
+        ${rows||'<p style="color:var(--txt3);font-size:13px">Keine Abwesenheiten eingetragen.</p>'}
+      </div>
+    </div>`;
+}
+
+function openAbsenceModal(id){
+  const abs = id ? db.absences.find(x=>x.id===id) : null;
+  const personOpts = db.persons.map(p=>`<option value="${p.id}"${abs?.personId===p.id?' selected':''}>${esc(p.name)}</option>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>${abs?'Abwesenheit bearbeiten':'Neue Abwesenheit'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Person</label><select id="abm-person">${personOpts}</select></div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Von</label><input type="date" id="abm-from" value="${abs?.from||''}"></div>
+        <div class="form-group"><label class="field-label">Bis</label><input type="date" id="abm-to" value="${abs?.to||''}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Notiz</label><input id="abm-note" value="${esc(abs?.note||'')}"></div>
+    </div>
+    <div class="modal-footer">
+      ${abs?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteAbsence('${id}');closeModal()">Löschen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveAbsence('${id||''}')">Speichern</button>
+    </div>`);
+}
+
+function saveAbsence(id){
+  const personId = document.getElementById('abm-person').value;
+  const from = document.getElementById('abm-from').value;
+  const to = document.getElementById('abm-to').value||from;
+  const note = document.getElementById('abm-note').value.trim();
+  if(!from){ toast('Datum fehlt','err'); return; }
+  const data = {personId, from, to, note};
+  if(id){ Object.assign(db.absences.find(x=>x.id===id), data); }
+  else { db.absences.push({id:uid(), ...data}); }
+  saveDB(); closeModal(); renderVerfuegbarkeiten(); toast('Gespeichert','ok');
+}
+
+function deleteAbsence(id){
+  db.absences = db.absences.filter(x=>x.id!==id);
+  saveDB(); renderVerfuegbarkeiten();
+}
+
+/* ═══════════════════════════════════════════
+   SHARE
+═══════════════════════════════════════════ */
+function openShareSchichtModal(schichtId){
+  const s = db.schichten.find(x=>x.id===schichtId);
+  if(!s) return;
+  const waText = buildSchichtWA(s);
+  const htmlEmail = buildEmailHTML([s]);
+  showShareModal(`Dienstplan: ${s.name}`, waText, htmlEmail);
+}
+
+function openSharePeriodModal(){
+  const list = db.schichten.filter(s=>s.published).sort((a,b)=>a.date<b.date?-1:1);
+  const waText = list.map(buildSchichtWA).join('\n\n---\n\n');
+  const htmlEmail = buildEmailHTML(list);
+  showShareModal('Dienstplan Übersicht', waText, htmlEmail);
+}
+
+function showShareModal(title, waText, htmlEmail){
+  openModal(`
+    <div class="modal-header"><h3>Dienstplan teilen</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="mtabs">
+        <button class="mtab active" onclick="switchShareTab('wa',this)">WhatsApp</button>
+        <button class="mtab" onclick="switchShareTab('email',this)">E-Mail HTML</button>
+        <button class="mtab" onclick="switchShareTab('remind',this)">Erinnerungen</button>
+      </div>
+      <div id="share-wa">
+        <div class="share-preview" id="wa-preview">${esc(waText)}</div>
+        <div class="copy-row">
+          <button class="btn btn-acc btn-sm" onclick="copyShareText()">Kopieren</button>
+          <span id="wa-ok" class="hidden" style="color:var(--suc);font-size:12px">Kopiert!</span>
+        </div>
+      </div>
+      <div id="share-email" class="hidden">
+        <div class="share-preview" id="email-preview">${esc(htmlEmail)}</div>
+        <div class="copy-row">
+          <button class="btn btn-acc btn-sm" onclick="copyEmailHtml()">HTML kopieren</button>
+          <span id="email-ok" class="hidden" style="color:var(--suc);font-size:12px">Kopiert!</span>
+        </div>
+      </div>
+      <div id="share-remind" class="hidden">
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">Öffnet E-Mail-Entwürfe für alle eingeteilten Personen mit E-Mail-Adresse.</p>
+        <div id="remind-list">${buildReminderList(waText)}</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`,'modal-lg');
+  window._shareWA = waText;
+  window._shareHTML = htmlEmail;
+}
+
+function switchShareTab(tab, btn){
+  document.querySelectorAll('#share-wa,#share-email,#share-remind').forEach(el=>el.classList.add('hidden'));
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('share-'+tab).classList.remove('hidden');
+  btn.classList.add('active');
+}
+
+function copyShareText(){
+  navigator.clipboard.writeText(window._shareWA||'').then(()=>{
+    const ok = document.getElementById('wa-ok');
+    ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2000);
+  });
+}
+
+function copyEmailHtml(){
+  navigator.clipboard.writeText(window._shareHTML||'').then(()=>{
+    const ok = document.getElementById('email-ok');
+    ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2000);
+  });
+}
+
+function buildReminderList(bodyText){
+  const assigned = db.assignments;
+  const pids = [...new Set(assigned.map(a=>a.personId))];
+  const withEmail = pids.map(pid=>db.persons.find(p=>p.id===pid)).filter(p=>p?.email);
+  if(!withEmail.length) return '<p style="color:var(--txt3);font-size:13px">Keine Personen mit E-Mail-Adresse gefunden.</p>';
+  return withEmail.map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sur2)">
+      <div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1;font-size:13px;font-weight:600">${esc(p.name)}</div>
+      <span style="font-size:12px;color:var(--txt3)">${esc(p.email)}</span>
+      <a class="btn btn-acc btn-xs" href="mailto:${encodeURIComponent(p.email)}?subject=${encodeURIComponent('Dein Dienstplan')}&body=${encodeURIComponent(bodyText)}" target="_blank">Schreiben</a>
+    </div>`).join('');
+}
+
+function buildSchichtWA(s){
+  const lines = [`*${s.name}*`, `${fmtDate(s.date)}${s.timeStart?' | '+s.timeStart+(s.timeEnd?' – '+s.timeEnd:''):''}`];
+  const grouped = groupSlots(s.slots||[]);
+  for(const [gid, slots] of Object.entries(grouped)){
+    const g = db.groups.find(x=>x.id===gid);
+    lines.push(`\n*${g?.name||gid}*`);
+    for(const sl of slots){
+      const asgn = db.assignments.find(a=>a.slotId===sl.id);
+      const pname = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.name||'?') : 'Offen';
+      lines.push(`  ${getDienstName(sl.dienstId)}: ${pname}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function buildEmailHTML(schichten){
+  const rows = schichten.map(s=>{
+    const grouped = groupSlots(s.slots||[]);
+    let groupSections = '';
+    for(const [gid, slots] of Object.entries(grouped)){
+      const g = db.groups.find(x=>x.id===gid);
+      const color = g?.color||'#6366f1';
+      const slotRows = slots.map(sl=>{
+        const asgn = db.assignments.find(a=>a.slotId===sl.id);
+        const pname = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.name||'?') : '—';
+        const pcolor = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.color||'#94a3b8') : '#94a3b8';
+        const filled = !!asgn;
+        return `<tr>
+          <td style="padding:7px 12px;font-size:13px;color:#475569;border-bottom:1px solid #f1f5f9">${esc(getDienstName(sl.dienstId))}</td>
+          <td style="padding:7px 12px;border-bottom:1px solid #f1f5f9">
+            ${filled?`<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#0f172a">
+              <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${pcolor}"></span>${esc(pname)}</span>`
+            :`<span style="font-size:13px;color:#94a3b8;font-style:italic">Offen</span>`}
+          </td>
+        </tr>`;
+      }).join('');
+      groupSections += `
+        <tr><td colspan="2" style="padding:10px 12px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${color};background:#fafafa">${esc(g?.name||gid)}</td></tr>
+        ${slotRows}`;
+    }
+    return `
+      <div style="margin-bottom:28px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+        <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);padding:16px 18px;color:#fff">
+          <div style="font-size:16px;font-weight:800;letter-spacing:-.3px">${esc(s.name)}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:2px">${fmtDate(s.date)}${s.timeStart?' &middot; '+s.timeStart+(s.timeEnd?' – '+s.timeEnd:''):''}</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;background:#fff">${groupSections}</table>
+      </div>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;padding:24px;margin:0">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:28px;font-weight:900;color:#0f172a;letter-spacing:-1px">R3<span style="color:#6366f1">.</span></div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#94a3b8">Dienstplan</div>
+    </div>
+    ${rows}
+    <div style="text-align:center;font-size:11px;color:#94a3b8;margin-top:24px">Erstellt mit R3 Dienstplan</div>
+  </div></body></html>`;
+}
+
+/* ═══════════════════════════════════════════
+   VIEW: EINSTELLUNGEN
+═══════════════════════════════════════════ */
+function renderEinstellungen(){
+  document.getElementById('page-title').textContent = 'Einstellungen';
+  document.getElementById('page-actions').innerHTML='';
+  document.getElementById('page-body').innerHTML=`
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header"><h2>Admin-PIN</h2></div>
+      <div class="card-body">
+        <div class="form-group"><label class="field-label">Neuer PIN (4-stellig)</label>
+          <div style="display:flex;gap:8px">
+            <input type="password" id="new-pin" maxlength="4" placeholder="••••" style="max-width:120px">
+            <button class="btn btn-acc btn-sm" onclick="savePin()">Speichern</button>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--txt3)">Aktueller PIN ist gesetzt. Teile ihn nur mit Admins.</p>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-header"><h2>Cloud-Sync</h2></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Synchronisiere Daten über Geräte hinweg mit einem Sync-Code.</p>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <button class="btn btn-acc btn-sm" onclick="syncCreate()">Neuen Sync erstellen</button>
+          <button class="btn btn-sec btn-sm" onclick="syncPush()">Hochladen</button>
+          <button class="btn btn-sec btn-sm" onclick="openSyncPull()">Code eingeben & herunterladen</button>
+        </div>
+        ${db.meta.syncCode?`<div class="sync-code">${esc(db.meta.syncCode)}</div><p style="font-size:12px;color:var(--txt3);margin-top:8px;text-align:center">Teile diesen Code zum Synchronisieren auf anderen Geräten.</p>`:'<p style="font-size:12px;color:var(--txt3)">Noch kein Sync-Code erstellt.</p>'}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><h2>Daten</h2></div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sec btn-sm" onclick="exportJSON()">JSON exportieren</button>
+          <button class="btn btn-sec btn-sm" onclick="document.getElementById('imp-file').click()">JSON importieren</button>
+          <input type="file" id="imp-file" accept=".json" class="hidden" onchange="importJSON(this)">
+          <button class="btn btn-dan-ghost btn-sm" onclick="resetData()">Alle Daten löschen</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function savePin(){
+  const p = document.getElementById('new-pin').value;
+  if(p.length!==4||isNaN(p)){ toast('PIN muss 4 Ziffern sein','err'); return; }
+  db.meta.adminPin = p; saveDB(); toast('PIN geändert','ok');
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='r3-dienstplan.json'; a.click();
+}
+
+function importJSON(input){
+  const file = input.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = e=>{
+    try{
+      db = JSON.parse(e.target.result);
+      saveDB(); toast('Importiert','ok'); showView(currentView);
+    }catch{ toast('Ungültige Datei','err'); }
+  };
+  r.readAsText(file);
+}
+
+function resetData(){
+  if(!confirm('Alle Daten wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
+  db = defaultDB(); saveDB(); toast('Daten gelöscht'); showView('einstellungen');
+}
+
+/* Cloud Sync via jsonblob.com */
+async function syncCreate(){
+  try{
+    toast('Erstelle Sync...');
+    const res = await fetch('https://jsonblob.com/api/jsonBlob',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(db)});
+    if(!res.ok) throw new Error();
+    const loc = res.headers.get('Location')||'';
+    const code = loc.split('/').pop();
+    db.meta.syncCode = code; saveDB();
+    renderEinstellungen(); toast('Sync erstellt!','ok');
+  }catch{ toast('Sync fehlgeschlagen. Prüfe die Internetverbindung.','err'); }
+}
+
+async function syncPush(){
+  if(!db.meta.syncCode){ toast('Kein Sync-Code vorhanden','err'); return; }
+  try{
+    toast('Lade hoch...');
+    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${db.meta.syncCode}`,{method:'PUT',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(db)});
+    if(!res.ok) throw new Error();
+    toast('Hochgeladen!','ok');
+  }catch{ toast('Upload fehlgeschlagen','err'); }
+}
+
+function openSyncPull(){
+  openModal(`
+    <div class="modal-header"><h3>Sync-Code eingeben</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Sync-Code</label><input id="sync-code-inp" placeholder="z.B. 1234567890123456" autofocus></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="syncPull()">Herunterladen</button>
+    </div>`);
+}
+
+async function syncPull(){
+  const code = document.getElementById('sync-code-inp').value.trim();
+  if(!code){ toast('Code fehlt','err'); return; }
+  try{
+    toast('Lade herunter...');
+    const res = await fetch(`https://jsonblob.com/api/jsonBlob/${code}`,{headers:{'Accept':'application/json'}});
+    if(!res.ok) throw new Error();
+    const data = await res.json();
+    db = data; db.meta.syncCode = code;
+    saveDB(); closeModal(); toast('Synchronisiert!','ok'); showView(currentView);
+  }catch{ toast('Download fehlgeschlagen. Code korrekt?','err'); }
+}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function openModal(html, cls=''){
+  const mo = document.getElementById('mo');
+  const mc = document.getElementById('mc');
+  mc.className = 'modal '+(cls||'');
+  mc.innerHTML = html;
+  mo.style.display='flex';
+  setTimeout(()=>mc.querySelector('input,select,textarea')?.focus(),100);
+}
+
+function closeModal(){
+  document.getElementById('mo').style.display='none';
+  document.getElementById('mc').innerHTML='';
+}
+
+function toast(msg, type=''){
+  const tc = document.getElementById('tc');
+  const el = document.createElement('div');
+  el.className='toast '+(type==='ok'?'ok':type==='err'?'err':'');
+  el.textContent=msg;
+  tc.appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(name){ return String(name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function fmtDate(d){ if(!d) return ''; try{ return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }catch{ return d; } }
+
+function getGroupName(gid){ return db.groups.find(g=>g.id===gid)?.name||gid; }
+function getDienstName(did){
+  for(const g of db.groups) for(const d of (g.dienste||[])) if(d.id===did) return d.name;
+  return did;
+}
+
+/* ═══════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════ */
+initAuth();
+</script>
+</body>
+</html>
