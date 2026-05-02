@@ -262,7 +262,7 @@ input[type=color]{width:36px;height:36px;padding:2px;border-radius:6px;cursor:po
     <div class="admin-form" id="admin-form">
       <div class="form-group" style="margin-top:14px">
         <label class="field-label">Admin-PIN</label>
-        <input type="password" id="admin-pin-inp" maxlength="4" placeholder="••••"
+        <input type="password" id="admin-pin-inp" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢"
           style="letter-spacing:6px;font-size:18px;text-align:center"
           onkeydown="if(event.key==='Enter')doAdminLogin()">
       </div>
@@ -298,9 +298,9 @@ input[type=color]{width:36px;height:36px;padding:2px;border-radius:6px;cursor:po
 <div class="toast-wrap" id="tc"></div>
 
 <script>
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    DATA
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 const DBKEY = 'r3dp3', SESSKEY = 'r3sess';
 let db = {}, session = null;
 
@@ -316,10 +316,10 @@ function defaultDB(){
         {id:'d6',name:'Cafe-Leitung'},{id:'d7',name:'Cafe'}
       ]},
       {id:'g3',name:'People',color:'#10b981',dienste:[
-        {id:'d8',name:'Connectar'},{id:'d9',name:'Schildhalter'},{id:'d10',name:'Begrüßung'}
+        {id:'d8',name:'Connectar'},{id:'d9',name:'Schildhalter'},{id:'d10',name:'Begr√º√üung'}
       ]},
       {id:'g4',name:'Worship',color:'#ec4899',dienste:[
-        {id:'d11',name:'Sänger'},{id:'d12',name:'Bass'},{id:'d13',name:'Drums'},
+        {id:'d11',name:'S√§nger'},{id:'d12',name:'Bass'},{id:'d13',name:'Drums'},
         {id:'d14',name:'Keys'},{id:'d15',name:'A-Gitarre'},{id:'d16',name:'Guitar'}
       ]},
       {id:'g5',name:'Eventleitung',color:'#ef4444',dienste:[
@@ -347,9 +347,9 @@ function loadDB(){
 function saveDB(){ localStorage.setItem(DBKEY, JSON.stringify(db)); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    AUTH
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function initAuth(){
   loadDB();
   const s = sessionStorage.getItem(SESSKEY);
@@ -398,7 +398,7 @@ function doUserLogin(){
   const name = document.getElementById('login-name').value.trim();
   if(!name){ toast('Bitte Namen eingeben','err'); return; }
   const p = db.persons.find(x=>x.name.toLowerCase()===name.toLowerCase());
-  if(!p){ toast('Name nicht gefunden – bitte exakt eingeben','err'); return; }
+  if(!p){ toast('Name nicht gefunden ‚Äì bitte exakt eingeben','err'); return; }
   loginAs(p.id);
 }
 
@@ -464,9 +464,9 @@ function canSeeSchicht(s){
   return db.assignments.some(a=>a.schichtId===s.id&&a.personId===session.personId);
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    APP SHELL
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 let currentView = 'dienstplan';
 
 function showApp(){
@@ -482,13 +482,13 @@ const VIEWS = {
     {id:'personen', label:'Personen'},
     {id:'gruppen', label:'Gruppen & Dienste'},
     {id:'vorlagen', label:'Vorlagen'},
-    {id:'verfuegbarkeiten', label:'Verfügbarkeiten'},
+    {id:'verfuegbarkeiten', label:'Verf√ºgbarkeiten'},
     {id:'statistik', label:'Statistik'},
     {id:'einstellungen', label:'Einstellungen'},
   ],
   eventleitung: [
     {id:'dienstplan', label:'Dienstplan'},
-    {id:'verfuegbarkeiten', label:'Verfügbarkeiten'},
+    {id:'verfuegbarkeiten', label:'Verf√ºgbarkeiten'},
   ],
   user: [
     {id:'dienstplan', label:'Mein Dienstplan'},
@@ -529,9 +529,9 @@ function showView(v){
   (renders[v]||renderDienstplan)();
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: PERSONEN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 let personSearch = '';
 
 function renderPersonen(){
@@ -552,7 +552,7 @@ function renderPersonsList(){
   const el = document.getElementById('persons-list');
   if(!el) return;
   if(!filtered.length){
-    el.innerHTML=`<div class="empty"><div class="empty-title">${personSearch?'Keine Treffer':'Noch keine Personen'}</div><div class="empty-sub">${personSearch?'Suchbegriff ändern':'Lege die erste Person an.'}</div></div>`;
+    el.innerHTML=`<div class="empty"><div class="empty-title">${personSearch?'Keine Treffer':'Noch keine Personen'}</div><div class="empty-sub">${personSearch?'Suchbegriff √§ndern':'Lege die erste Person an.'}</div></div>`;
     return;
   }
   el.innerHTML=`<div class="persons-grid">${filtered.map(p=>renderPersonCard(p)).join('')}</div>`;
@@ -567,7 +567,7 @@ function renderPersonCard(p){
     <div class="av av-lg" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
     <div class="pc-info">
       <div class="pc-name">${esc(p.name)}</div>
-      <div class="pc-role">${esc(p.role||'Mitarbeiter')}${p.email?` · ${esc(p.email)}`:''}</div>
+      <div class="pc-role">${esc(p.role||'Mitarbeiter')}${p.email?` ¬∑ ${esc(p.email)}`:''}</div>
       ${quals?`<div class="pc-tags">${quals}</div>`:''}
     </div>
   </div>`;
@@ -602,7 +602,7 @@ function openPersonModal(id){
         <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
           <div id="pm-color-preview" style="width:26px;height:26px;border-radius:6px;background:${currentColor};border:2px solid var(--brd);flex-shrink:0"></div>
           <span id="pm-color-val" style="font-size:12px;font-family:monospace;color:var(--txt2)">${currentColor}</span>
-          <input type="color" id="pm-color-custom" value="${currentColor}" style="width:30px;height:26px;padding:1px;border-radius:5px;border:1.5px solid var(--brd);cursor:pointer;margin-left:auto" onchange="selectPersonColor(this.value)" title="Eigene Farbe wählen">
+          <input type="color" id="pm-color-custom" value="${currentColor}" style="width:30px;height:26px;padding:1px;border-radius:5px;border:1.5px solid var(--brd);cursor:pointer;margin-left:auto" onchange="selectPersonColor(this.value)" title="Eigene Farbe w√§hlen">
           <span style="font-size:11px;color:var(--txt3)">Eigene</span>
         </div>
       </div>
@@ -618,7 +618,7 @@ function openPersonModal(id){
       <div class="form-group"><label class="field-label">Qualifikationen</label><div style="max-height:200px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r);padding:10px">${qualCbs}</div></div>
     </div>
     <div class="modal-footer">
-      ${p?`<button class="btn btn-dan-ghost btn-sm" onclick="deletePerson('${id}')">Löschen</button>`:''}
+      ${p?`<button class="btn btn-dan-ghost btn-sm" onclick="deletePerson('${id}')">L√∂schen</button>`:''}
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-acc btn-sm" onclick="savePerson('${id||''}')">Speichern</button>
     </div>`);
@@ -642,12 +642,12 @@ function savePerson(id){
 }
 
 function deletePerson(id){
-  if(!confirm('Person wirklich löschen?')) return;
+  if(!confirm('Person wirklich l√∂schen?')) return;
   db.persons = db.persons.filter(x=>x.id!==id);
   db.assignments = db.assignments.filter(x=>x.personId!==id);
   db.wishes = db.wishes.filter(x=>x.personId!==id);
   db.absences = db.absences.filter(x=>x.personId!==id);
-  saveDB(); closeModal(); renderPersonsList(); toast('Gelöscht');
+  saveDB(); closeModal(); renderPersonsList(); toast('Gel√∂scht');
 }
 
 function selectPersonColor(c){
@@ -660,9 +660,9 @@ function selectPersonColor(c){
   const inp=document.getElementById('pm-color-custom'); if(inp) inp.value=c;
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: GRUPPEN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderGruppen(){
   document.getElementById('page-title').textContent = 'Gruppen & Dienste';
   document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openGroupModal()">+ Gruppe</button>`;
@@ -702,7 +702,7 @@ function openGroupModal(id){
       </div>
     </div>
     <div class="modal-footer">
-      ${g?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteGroup('${id}')">Löschen</button>`:''}
+      ${g?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteGroup('${id}')">L√∂schen</button>`:''}
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-acc btn-sm" onclick="saveGroup('${id||''}')">Speichern</button>
     </div>`);
@@ -718,7 +718,7 @@ function saveGroup(id){
 }
 
 function deleteGroup(id){
-  if(!confirm('Gruppe löschen?')) return;
+  if(!confirm('Gruppe l√∂schen?')) return;
   db.groups = db.groups.filter(x=>x.id!==id);
   saveDB(); closeModal(); renderGroupsList();
 }
@@ -730,7 +730,7 @@ function addDienstToGroup(gid){
   if(!g) return;
   if(!g.dienste) g.dienste=[];
   g.dienste.push({id:uid(), name:name.trim()});
-  saveDB(); renderGroupsList(); toast('Dienst hinzugefügt','ok');
+  saveDB(); renderGroupsList(); toast('Dienst hinzugef√ºgt','ok');
 }
 
 function deleteDienst(gid, did){
@@ -740,9 +740,9 @@ function deleteDienst(gid, did){
   saveDB(); renderGroupsList();
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: VORLAGEN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderVorlagen(){
   document.getElementById('page-title').textContent = 'Vorlagen';
   document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openTemplateModal()">+ Vorlage</button>`;
@@ -754,17 +754,17 @@ function renderVorlList(){
   const el = document.getElementById('vorl-list');
   if(!el) return;
   if(!db.templates.length){
-    el.innerHTML='<div class="empty"><div class="empty-title">Keine Vorlagen</div><div class="empty-sub">Erstelle Vorlagen für wiederkehrende Events.</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-title">Keine Vorlagen</div><div class="empty-sub">Erstelle Vorlagen f√ºr wiederkehrende Events.</div></div>';
     return;
   }
   el.innerHTML=`<div class="vorl-grid">${db.templates.map(t=>`
     <div class="vorl-card">
       <div style="font-size:14px;font-weight:700;margin-bottom:4px">${esc(t.name)}</div>
-      <div style="font-size:12px;color:var(--txt3);margin-bottom:10px">${t.timeStart||''}${t.timeEnd?' – '+t.timeEnd:''} &middot; ${(t.slots||[]).length} Slots</div>
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:10px">${t.timeStart||''}${t.timeEnd?' ‚Äì '+t.timeEnd:''} &middot; ${(t.slots||[]).length} Slots</div>
       <div style="display:flex;gap:6px">
         <button class="btn btn-acc btn-xs" onclick="useTemplate('${t.id}')">Verwenden</button>
         <button class="btn btn-ghost btn-xs" onclick="openTemplateModal('${t.id}')">Bearbeiten</button>
-        <button class="btn btn-dan-ghost btn-xs" onclick="deleteTemplate('${t.id}')">Löschen</button>
+        <button class="btn btn-dan-ghost btn-xs" onclick="deleteTemplate('${t.id}')">L√∂schen</button>
       </div>
     </div>`).join('')}</div>`;
 }
@@ -789,12 +789,12 @@ function openTemplateModal(id){
         <div id="tm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px">${slotRows||'<div style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
         <div style="display:flex;gap:8px;align-items:center">
           <select id="tm-slot-sel" style="flex:1">${slotOpts}</select>
-          <button class="btn btn-sec btn-sm" onclick="addTSlot()">Hinzufügen</button>
+          <button class="btn btn-sec btn-sm" onclick="addTSlot()">Hinzuf√ºgen</button>
         </div>
       </div>
     </div>
     <div class="modal-footer">
-      ${t?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteTemplate('${id}');closeModal()">Löschen</button>`:''}
+      ${t?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteTemplate('${id}');closeModal()">L√∂schen</button>`:''}
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-acc btn-sm" onclick="saveTemplate('${id||''}')">Speichern</button>
     </div>`,'modal-lg');
@@ -835,16 +835,16 @@ function saveTemplate(id){
 
 function deleteTemplate(id){
   db.templates = db.templates.filter(x=>x.id!==id);
-  saveDB(); renderVorlList(); toast('Gelöscht');
+  saveDB(); renderVorlList(); toast('Gel√∂scht');
 }
 
 function useTemplate(tid){
   openSchichtModal(null, tid);
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: DIENSTPLAN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 let dpFilter = {from:'', to:''};
 
 function renderDienstplan(){
@@ -865,7 +865,7 @@ function renderDienstplan(){
         <label>Von</label><input type="date" value="${dpFilter.from}" onchange="dpFilter.from=this.value;renderSchichtenList()">
         <label style="margin-left:8px">Bis</label><input type="date" value="${dpFilter.to}" onchange="dpFilter.to=this.value;renderSchichtenList()">
       </div>
-      <button class="btn btn-ghost btn-sm" onclick="dpFilter={from:'',to:''};renderSchichtenList()">Zurücksetzen</button>
+      <button class="btn btn-ghost btn-sm" onclick="dpFilter={from:'',to:''};renderSchichtenList()">Zur√ºcksetzen</button>
     </div>` : '';
 
   document.getElementById('page-body').innerHTML = filterBar + `<div id="schichten-list"></div>`;
@@ -880,7 +880,7 @@ function renderSchichtenList(){
   if(dpFilter.to) list = list.filter(s=>s.date<=dpFilter.to);
   list.sort((a,b)=>a.date<b.date?-1:1);
   if(!list.length){
-    el.innerHTML='<div class="empty"><div class="empty-title">Keine Schichten</div><div class="empty-sub">'+(isAdmin()?'Erstelle eine neue Schicht oder nutze eine Vorlage.':'Noch keine Schichten verfügbar.')+'</div></div>';
+    el.innerHTML='<div class="empty"><div class="empty-title">Keine Schichten</div><div class="empty-sub">'+(isAdmin()?'Erstelle eine neue Schicht oder nutze eine Vorlage.':'Noch keine Schichten verf√ºgbar.')+'</div></div>';
     return;
   }
   el.innerHTML = list.map(s=>renderSchichtCard(s)).join('');
@@ -891,7 +891,7 @@ function renderSchichtCard(s){
   const totalSlots = (s.slots||[]).length;
   const filled = (s.slots||[]).filter(sl=>db.assignments.some(a=>a.slotId===sl.id)).length;
   const canEdit = isAdmin() || canEditSchicht(s.id);
-  const pubBadge = s.published ? '<span class="badge badge-pub">Veröffentlicht</span>' : '<span class="badge badge-draft">Entwurf</span>';
+  const pubBadge = s.published ? '<span class="badge badge-pub">Ver√∂ffentlicht</span>' : '<span class="badge badge-draft">Entwurf</span>';
   const availResps = db.availability.filter(a=>a.schichtId===s.id);
   const availJa = availResps.filter(a=>a.avail==='ja').length;
   const availNein = availResps.filter(a=>a.avail==='nein').length;
@@ -923,14 +923,14 @@ function renderSchichtCard(s){
     }).join('');
   }
 
-  const userAvailBtn = (!isAdmin() && s.collectAvail) ? `<button class="btn btn-xs" style="background:${myAvail?myAvail.avail==='ja'?'var(--suc-l)':'var(--dan-l)':'var(--acc-l)'};color:${myAvail?myAvail.avail==='ja'?'#065f46':'var(--dan)':'var(--acc-d)'}" onclick="openAvailUserModal('${s.id}')">${myAvail?myAvail.avail==='ja'?'Ich kann':'Ich kann nicht':'Verfügbarkeit angeben'}</button>` : '';
+  const userAvailBtn = (!isAdmin() && s.collectAvail) ? `<button class="btn btn-xs" style="background:${myAvail?myAvail.avail==='ja'?'var(--suc-l)':'var(--dan-l)':'var(--acc-l)'};color:${myAvail?myAvail.avail==='ja'?'#065f46':'var(--dan)':'var(--acc-d)'}" onclick="openAvailUserModal('${s.id}')">${myAvail?myAvail.avail==='ja'?'Ich kann':'Ich kann nicht':'Verf√ºgbarkeit angeben'}</button>` : '';
   const headerActions = canEdit ? `
     ${userAvailBtn}
-    <button class="btn btn-ghost btn-xs" onclick="openWishModal('${s.id}')">Wünsche</button>
+    <button class="btn btn-ghost btn-xs" onclick="openWishModal('${s.id}')">W√ºnsche</button>
     <button class="btn btn-ghost btn-xs" onclick="openShareSchichtModal('${s.id}')">Teilen</button>
     ${isAdmin()?`
     <button class="btn btn-ghost btn-xs" onclick="openSchichtModal('${s.id}')">Bearbeiten</button>
-    ${s.published?`<button class="btn btn-dan-ghost btn-xs" onclick="unpublishSchicht('${s.id}')">Zurückziehen</button>`:`<button class="btn btn-suc btn-xs" onclick="publishSchicht('${s.id}')">Veröffentlichen</button>`}
+    ${s.published?`<button class="btn btn-dan-ghost btn-xs" onclick="unpublishSchicht('${s.id}')">Zur√ºckziehen</button>`:`<button class="btn btn-suc btn-xs" onclick="publishSchicht('${s.id}')">Ver√∂ffentlichen</button>`}
     `:''}` : `${userAvailBtn}<button class="btn btn-ghost btn-xs" onclick="openShareSchichtModal('${s.id}')">Teilen</button>`;
 
   return `<div class="schicht-card" id="sc_${s.id}">
@@ -943,7 +943,7 @@ function renderSchichtCard(s){
         ${pubBadge}
         ${availBadge}
         <span class="badge ${filled===totalSlots&&totalSlots>0?'badge-ok':'badge-war'}">${filled}/${totalSlots}</span>
-        ${s.timeStart?`<span class="schicht-time">${s.timeStart}${s.timeEnd?' – '+s.timeEnd:''}</span>`:''}
+        ${s.timeStart?`<span class="schicht-time">${s.timeStart}${s.timeEnd?' ‚Äì '+s.timeEnd:''}</span>`:''}
         <div style="display:flex;gap:4px">${headerActions}</div>
       </div>
     </div>
@@ -983,7 +983,7 @@ function openSchichtModal(id, templateId){
       </div>
       <div class="form-group"><label class="field-label">Notizen</label><textarea id="sm-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
       <div class="form-group">
-        <div class="check-row"><input type="checkbox" id="sm-avail" ${s?.collectAvail?'checked':''}><label for="sm-avail">Verfügbarkeitsabfrage aktivieren (Personen können angeben, ob sie Zeit haben)</label></div>
+        <div class="check-row"><input type="checkbox" id="sm-avail" ${s?.collectAvail?'checked':''}><label for="sm-avail">Verf√ºgbarkeitsabfrage aktivieren (Personen k√∂nnen angeben, ob sie Zeit haben)</label></div>
       </div>
       <div class="form-group"><label class="field-label">Slots</label>
         <div id="sm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px">${slotRows||'<div id="sm-empty" style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
@@ -994,7 +994,7 @@ function openSchichtModal(id, templateId){
       </div>
     </div>
     <div class="modal-footer">
-      ${s?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteSchicht('${id}')">Löschen</button>`:''}
+      ${s?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteSchicht('${id}')">L√∂schen</button>`:''}
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-acc btn-sm" onclick="saveSchicht('${id||''}')">Speichern</button>
     </div>`,'modal-lg');
@@ -1048,7 +1048,7 @@ function openSchBlockModal(slotId){
   openModal(`
     <div class="modal-header"><h3>Gesperrte Personen</h3><button class="close-btn" onclick="closeSchBlockModal('${slotId}')">&#215;</button></div>
     <div class="modal-body">
-      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">Wähle Personen, die für diesen Slot nicht eingeteilt werden können.</p>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">W√§hle Personen, die f√ºr diesen Slot nicht eingeteilt werden k√∂nnen.</p>
       ${names||'<p style="color:var(--txt3)">Keine Personen angelegt.</p>'}
     </div>
     <div class="modal-footer">
@@ -1096,7 +1096,7 @@ function saveSchicht(id){
 }
 
 function deleteSchicht(id){
-  if(!confirm('Schicht löschen?')) return;
+  if(!confirm('Schicht l√∂schen?')) return;
   db.schichten = db.schichten.filter(x=>x.id!==id);
   db.assignments = db.assignments.filter(x=>x.schichtId!==id);
   db.wishes = db.wishes.filter(x=>x.schichtId!==id);
@@ -1105,17 +1105,17 @@ function deleteSchicht(id){
 
 function publishSchicht(id){
   const s = db.schichten.find(x=>x.id===id);
-  if(s){ s.published=true; saveDB(); renderSchichtenList(); toast('Veröffentlicht','ok'); }
+  if(s){ s.published=true; saveDB(); renderSchichtenList(); toast('Ver√∂ffentlicht','ok'); }
 }
 
 function unpublishSchicht(id){
   const s = db.schichten.find(x=>x.id===id);
-  if(s){ s.published=false; saveDB(); renderSchichtenList(); toast('Zurückgezogen'); }
+  if(s){ s.published=false; saveDB(); renderSchichtenList(); toast('Zur√ºckgezogen'); }
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    ASSIGN MODAL
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 let _assignCtx = {};
 
 function openAssignModal(schichtId, slotId, dienstId){
@@ -1156,10 +1156,10 @@ function openAssignModal(schichtId, slotId, dienstId){
     <div class="modal-header"><h3>Zuweisung: ${esc(dienstName)}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
       ${currentPerson?`<div style="background:var(--suc-l);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:13px;color:#065f46">Aktuell: <strong>${esc(currentPerson.name)}</strong> <button class="btn btn-dan-ghost btn-xs" style="margin-left:8px" onclick="removeAssignment('${slotId}');closeModal()">Entfernen</button></div>`:''}
-      ${!persons.length&&allPersons.length?'<p style="font-size:12px;color:var(--war);margin-bottom:10px">Keine qualifizierten Personen – zeige alle.</p>':''}
-      <div style="max-height:320px;overflow-y:auto">${personRows||'<p style="color:var(--txt3);font-size:13px">Keine Personen verfügbar.</p>'}</div>
+      ${!persons.length&&allPersons.length?'<p style="font-size:12px;color:var(--war);margin-bottom:10px">Keine qualifizierten Personen ‚Äì zeige alle.</p>':''}
+      <div style="max-height:320px;overflow-y:auto">${personRows||'<p style="color:var(--txt3);font-size:13px">Keine Personen verf√ºgbar.</p>'}</div>
     </div>
-    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`);
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`);
 }
 
 function doAssign(personId){
@@ -1174,9 +1174,9 @@ function removeAssignment(slotId){
   saveDB(); renderSchichtenList(); toast('Zuweisung entfernt');
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    WISH MODAL
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function openWishModal(schichtId){
   const s = db.schichten.find(x=>x.id===schichtId);
   const wishes = db.wishes.filter(w=>w.schichtId===schichtId);
@@ -1188,7 +1188,7 @@ function openWishModal(schichtId){
       <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${esc(p?.name||'Unbekannt')}</div>
-        <div style="font-size:11px;font-weight:700;color:${col}">${label}${w.note?` · ${esc(w.note)}`:''}</div>
+        <div style="font-size:11px;font-weight:700;color:${col}">${label}${w.note?` ¬∑ ${esc(w.note)}`:''}</div>
       </div>
       <button class="btn btn-dan-ghost btn-xs" onclick="deleteWish('${w.id}','${schichtId}')">&#215;</button>
     </div>`;
@@ -1196,9 +1196,9 @@ function openWishModal(schichtId){
 
   const personOpts = db.persons.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   openModal(`
-    <div class="modal-header"><h3>Wünsche: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-header"><h3>W√ºnsche: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
-      <div style="margin-bottom:14px">${wishRows||'<p style="color:var(--txt3);font-size:13px">Keine Wünsche eingetragen.</p>'}</div>
+      <div style="margin-bottom:14px">${wishRows||'<p style="color:var(--txt3);font-size:13px">Keine W√ºnsche eingetragen.</p>'}</div>
       <div style="border-top:1px solid var(--brd);padding-top:14px">
         <div class="form-group"><label class="field-label">Person</label><select id="wm-person">${personOpts}</select></div>
         <div class="form-group"><label class="field-label">Typ</label>
@@ -1208,7 +1208,7 @@ function openWishModal(schichtId){
         <button class="btn btn-acc btn-sm" onclick="saveWish('${schichtId}')">Wunsch speichern</button>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`);
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`);
 }
 
 function saveWish(schichtId){
@@ -1226,12 +1226,12 @@ function deleteWish(id, schichtId){
   saveDB(); openWishModal(schichtId);
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    AUTO-ASSIGN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function openAutoModal(){
   const schichtOpts = db.schichten.filter(s=>!s.published||true).sort((a,b)=>a.date<b.date?-1:1).map(s=>`
-    <div class="check-row"><input type="checkbox" id="au_${s.id}" checked><label for="au_${s.id}">${fmtDate(s.date)} – ${esc(s.name)}</label></div>`).join('');
+    <div class="check-row"><input type="checkbox" id="au_${s.id}" checked><label for="au_${s.id}">${fmtDate(s.date)} ‚Äì ${esc(s.name)}</label></div>`).join('');
   openModal(`
     <div class="modal-header"><h3>Auto-Einteilung</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
@@ -1240,10 +1240,10 @@ function openAutoModal(){
       </div>
       <div class="form-group"><label class="field-label">Optionen</label>
         <div class="check-row"><input type="checkbox" id="ao-qual" checked><label for="ao-qual">Nur qualifizierte Personen</label></div>
-        <div class="check-row"><input type="checkbox" id="ao-frei" checked><label for="ao-frei">Wunschfrei berücksichtigen</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-frei" checked><label for="ao-frei">Wunschfrei ber√ºcksichtigen</label></div>
         <div class="check-row"><input type="checkbox" id="ao-ndbl" checked><label for="ao-ndbl">Keine Doppelbesetzung pro Schicht</label></div>
-        <div class="check-row"><input type="checkbox" id="ao-fair" checked><label for="ao-fair">Gleichmäßige Verteilung</label></div>
-        <div class="check-row"><input type="checkbox" id="ao-over"><label for="ao-over">Bestehende Zuweisung überschreiben</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-fair" checked><label for="ao-fair">Gleichm√§√üige Verteilung</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-over"><label for="ao-over">Bestehende Zuweisung √ºberschreiben</label></div>
       </div>
     </div>
     <div class="modal-footer">
@@ -1298,31 +1298,31 @@ function runAuto(){
   saveDB(); closeModal(); renderSchichtenList(); toast(`${count} Zuweisung(en) erstellt`,'ok');
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    AVAILABILITY MODALS
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function openAvailUserModal(schichtId){
   const s = db.schichten.find(x=>x.id===schichtId);
   const my = session?.personId ? db.availability.find(a=>a.schichtId===schichtId&&a.personId===session.personId) : null;
   openModal(`
-    <div class="modal-header"><h3>Verfügbarkeit: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-header"><h3>Verf√ºgbarkeit: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
-      <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">${fmtDate(s?.date||'')}${s?.timeStart?' · '+s.timeStart+(s?.timeEnd?' – '+s.timeEnd:''):''}</p>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">${fmtDate(s?.date||'')}${s?.timeStart?' ¬∑ '+s.timeStart+(s?.timeEnd?' ‚Äì '+s.timeEnd:''):''}</p>
       <div class="form-group"><label class="field-label">Kannst du?</label>
         <div style="display:flex;gap:10px">
           <label style="flex:1;border:2px solid var(--brd);border-radius:var(--r);padding:12px;cursor:pointer;text-align:center;transition:all .12s" id="av-ja-lbl">
             <input type="radio" name="av-choice" value="ja" style="display:none" ${my?.avail==='ja'?'checked':''} onchange="document.getElementById('av-ja-lbl').style.borderColor='var(--suc)';document.getElementById('av-nein-lbl').style.borderColor='var(--brd)'">
-            <div style="font-size:20px;margin-bottom:4px">✓</div>
+            <div style="font-size:20px;margin-bottom:4px">‚úì</div>
             <div style="font-size:13px;font-weight:700;color:var(--suc)">Ich kann</div>
           </label>
           <label style="flex:1;border:2px solid var(--brd);border-radius:var(--r);padding:12px;cursor:pointer;text-align:center;transition:all .12s" id="av-nein-lbl">
             <input type="radio" name="av-choice" value="nein" style="display:none" ${my?.avail==='nein'?'checked':''} onchange="document.getElementById('av-nein-lbl').style.borderColor='var(--dan)';document.getElementById('av-ja-lbl').style.borderColor='var(--brd)'">
-            <div style="font-size:20px;margin-bottom:4px">✗</div>
+            <div style="font-size:20px;margin-bottom:4px">‚úó</div>
             <div style="font-size:13px;font-weight:700;color:var(--dan)">Ich kann nicht</div>
           </label>
         </div>
       </div>
-      <div class="form-group"><label class="field-label">Notiz (optional)</label><input id="av-note" value="${esc(my?.note||'')}" placeholder="z.B. Komme etwas später..."></div>
+      <div class="form-group"><label class="field-label">Notiz (optional)</label><input id="av-note" value="${esc(my?.note||'')}" placeholder="z.B. Komme etwas sp√§ter..."></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
@@ -1335,11 +1335,11 @@ function openAvailUserModal(schichtId){
 
 function saveAvailUser(schichtId){
   const choice = document.querySelector('input[name="av-choice"]:checked')?.value;
-  if(!choice){ toast('Bitte auswählen','err'); return; }
+  if(!choice){ toast('Bitte ausw√§hlen','err'); return; }
   const note = document.getElementById('av-note').value.trim();
   db.availability = db.availability.filter(a=>!(a.schichtId===schichtId&&a.personId===session.personId));
   db.availability.push({id:uid(), schichtId, personId:session.personId, avail:choice, note});
-  saveDB(); closeModal(); renderSchichtenList(); toast('Verfügbarkeit gespeichert','ok');
+  saveDB(); closeModal(); renderSchichtenList(); toast('Verf√ºgbarkeit gespeichert','ok');
 }
 
 function openAvailAdminModal(schichtId){
@@ -1360,11 +1360,11 @@ function openAvailAdminModal(schichtId){
   }).join('');
 
   openModal(`
-    <div class="modal-header"><h3>Verfügbarkeiten: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-header"><h3>Verf√ºgbarkeiten: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
       <div style="display:flex;gap:10px;margin-bottom:16px">
-        <div style="flex:1;background:var(--suc-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--suc)">${ja.length}</div><div style="font-size:11px;color:#065f46;font-weight:700">KÖNNEN</div></div>
-        <div style="flex:1;background:var(--dan-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--dan)">${nein.length}</div><div style="font-size:11px;color:#991b1b;font-weight:700">KÖNNEN NICHT</div></div>
+        <div style="flex:1;background:var(--suc-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--suc)">${ja.length}</div><div style="font-size:11px;color:#065f46;font-weight:700">K√ñNNEN</div></div>
+        <div style="flex:1;background:var(--dan-l);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--dan)">${nein.length}</div><div style="font-size:11px;color:#991b1b;font-weight:700">K√ñNNEN NICHT</div></div>
         <div style="flex:1;background:var(--sur2);border-radius:var(--r);padding:12px;text-align:center"><div style="font-size:22px;font-weight:900;color:var(--txt3)">${notAnswered.length}</div><div style="font-size:11px;color:var(--txt3);font-weight:700">KEINE ANTWORT</div></div>
       </div>
       ${makeRows(ja,'var(--suc)','Kann')}
@@ -1375,12 +1375,12 @@ function openAvailAdminModal(schichtId){
         <span style="font-size:11px;color:var(--txt3);margin-left:auto">Keine Antwort</span>
       </div>`).join('')}
     </div>
-    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`,'modal-lg');
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`,'modal-lg');
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: STATISTIK (Admin only)
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderStatistik(){
   document.getElementById('page-title').textContent = 'Statistik';
   document.getElementById('page-actions').innerHTML=`
@@ -1427,7 +1427,7 @@ function renderStatistikContent(){
       </div>
       <div class="card" style="text-align:center;padding:14px">
         <div style="font-size:28px;font-weight:900;color:var(--acc)">${totalAll}</div>
-        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Einsätze</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Eins√§tze</div>
       </div>
       <div class="card" style="text-align:center;padding:14px">
         <div style="font-size:28px;font-weight:900;color:var(--acc)">${db.persons.length}</div>
@@ -1435,7 +1435,7 @@ function renderStatistikContent(){
       </div>
       <div class="card" style="text-align:center;padding:14px">
         <div style="font-size:28px;font-weight:900;color:var(--acc)">${totalAll?Math.round(totalAll/db.persons.length*10)/10||0:0}</div>
-        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">Ø pro Person</div>
+        <div style="font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px">√ò pro Person</div>
       </div>
     </div>`;
 
@@ -1451,7 +1451,7 @@ function renderStatistikContent(){
         <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px">
           <span style="font-size:13px;font-weight:700">${esc(p.name)}</span>
           <span style="font-size:11px;color:var(--txt3)">${esc(p.role||'')}</span>
-          <span style="font-size:15px;font-weight:900;color:${p.color||'var(--acc)'};margin-left:auto">${total}×</span>
+          <span style="font-size:15px;font-weight:900;color:${p.color||'var(--acc)'};margin-left:auto">${total}√ó</span>
         </div>
         <div style="background:var(--sur2);border-radius:4px;height:6px;margin-bottom:7px;overflow:hidden">
           <div style="background:${p.color||'var(--acc)'};height:100%;border-radius:4px;width:${pct}%;transition:width .4s ease"></div>
@@ -1472,7 +1472,7 @@ function renderStatistikContent(){
     return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sur2)">
       <div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>
       <span style="font-size:13px;font-weight:600;flex:1">${esc(g.name)}</span>
-      <span style="font-size:13px;font-weight:800;color:${g.color}">${cnt}×</span>
+      <span style="font-size:13px;font-weight:800;color:${g.color}">${cnt}√ó</span>
       <span style="font-size:11px;color:var(--txt3)">${pct}%</span>
     </div>`;
   }).join('');
@@ -1481,7 +1481,7 @@ function renderStatistikContent(){
     ${summary}
     <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start">
       <div class="card">
-        <div class="card-header"><h2>Einsätze pro Person</h2></div>
+        <div class="card-header"><h2>Eins√§tze pro Person</h2></div>
         <div class="card-body">${rows||'<p style="color:var(--txt3);font-size:13px">Noch keine Daten.</p>'}</div>
       </div>
       <div class="card">
@@ -1491,11 +1491,11 @@ function renderStatistikContent(){
     </div>`;
 }
 
-/* ═══════════════════════════════════════════
-   VIEW: VERFÜGBARKEITEN
-═══════════════════════════════════════════ */
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: VERF√úGBARKEITEN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderVerfuegbarkeiten(){
-  document.getElementById('page-title').textContent = 'Verfügbarkeiten';
+  document.getElementById('page-title').textContent = 'Verf√ºgbarkeiten';
   document.getElementById('page-actions').innerHTML=`<button class="btn btn-acc btn-sm" onclick="openAbsenceModal()">+ Abwesenheit</button>`;
 
   const absences = db.absences.sort((a,b)=>a.from<b.from?-1:1);
@@ -1505,7 +1505,7 @@ function renderVerfuegbarkeiten(){
       <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:600">${esc(p?.name||'Unbekannt')}</div>
-        <div style="font-size:12px;color:var(--txt3)">${fmtDate(abs.from)}${abs.to&&abs.to!==abs.from?' – '+fmtDate(abs.to):''}${abs.note?' · '+esc(abs.note):''}</div>
+        <div style="font-size:12px;color:var(--txt3)">${fmtDate(abs.from)}${abs.to&&abs.to!==abs.from?' ‚Äì '+fmtDate(abs.to):''}${abs.note?' ¬∑ '+esc(abs.note):''}</div>
       </div>
       ${isAdmin()?`<button class="btn btn-ghost btn-xs" onclick="openAbsenceModal('${abs.id}')">Bearbeiten</button>
       <button class="btn btn-dan-ghost btn-xs" onclick="deleteAbsence('${abs.id}')">&#215;</button>`:''}
@@ -1535,7 +1535,7 @@ function openAbsenceModal(id){
       <div class="form-group"><label class="field-label">Notiz</label><input id="abm-note" value="${esc(abs?.note||'')}"></div>
     </div>
     <div class="modal-footer">
-      ${abs?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteAbsence('${id}');closeModal()">Löschen</button>`:''}
+      ${abs?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteAbsence('${id}');closeModal()">L√∂schen</button>`:''}
       <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
       <button class="btn btn-acc btn-sm" onclick="saveAbsence('${id||''}')">Speichern</button>
     </div>`);
@@ -1558,9 +1558,9 @@ function deleteAbsence(id){
   saveDB(); renderVerfuegbarkeiten();
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    SHARE
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function openShareSchichtModal(schichtId){
   const s = db.schichten.find(x=>x.id===schichtId);
   if(!s) return;
@@ -1573,7 +1573,7 @@ function openSharePeriodModal(){
   const list = db.schichten.filter(s=>s.published).sort((a,b)=>a.date<b.date?-1:1);
   const waText = list.map(buildSchichtWA).join('\n\n---\n\n');
   const htmlEmail = buildEmailHTML(list);
-  showShareModal('Dienstplan Übersicht', waText, htmlEmail);
+  showShareModal('Dienstplan √úbersicht', waText, htmlEmail);
 }
 
 function showShareModal(title, waText, htmlEmail){
@@ -1600,11 +1600,11 @@ function showShareModal(title, waText, htmlEmail){
         </div>
       </div>
       <div id="share-remind" class="hidden">
-        <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">Öffnet E-Mail-Entwürfe für alle eingeteilten Personen mit E-Mail-Adresse.</p>
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">√ñffnet E-Mail-Entw√ºrfe f√ºr alle eingeteilten Personen mit E-Mail-Adresse.</p>
         <div id="remind-list">${buildReminderList(waText)}</div>
       </div>
     </div>
-    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schließen</button></div>`,'modal-lg');
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`,'modal-lg');
   window._shareWA = waText;
   window._shareHTML = htmlEmail;
 }
@@ -1645,7 +1645,7 @@ function buildReminderList(bodyText){
 }
 
 function buildSchichtWA(s){
-  const lines = [`*${s.name}*`, `${fmtDate(s.date)}${s.timeStart?' | '+s.timeStart+(s.timeEnd?' – '+s.timeEnd:''):''}`];
+  const lines = [`*${s.name}*`, `${fmtDate(s.date)}${s.timeStart?' | '+s.timeStart+(s.timeEnd?' ‚Äì '+s.timeEnd:''):''}`];
   const grouped = groupSlots(s.slots||[]);
   for(const [gid, slots] of Object.entries(grouped)){
     const g = db.groups.find(x=>x.id===gid);
@@ -1668,7 +1668,7 @@ function buildEmailHTML(schichten){
       const color = g?.color||'#6366f1';
       const slotRows = slots.map(sl=>{
         const asgn = db.assignments.find(a=>a.slotId===sl.id);
-        const pname = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.name||'?') : '—';
+        const pname = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.name||'?') : '‚Äî';
         const pcolor = asgn ? (db.persons.find(p=>p.id===asgn.personId)?.color||'#94a3b8') : '#94a3b8';
         const filled = !!asgn;
         return `<tr>
@@ -1688,7 +1688,7 @@ function buildEmailHTML(schichten){
       <div style="margin-bottom:28px;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,.06)">
         <div style="background:linear-gradient(135deg,#0f172a,#1e1b4b);padding:16px 18px;color:#fff">
           <div style="font-size:16px;font-weight:800;letter-spacing:-.3px">${esc(s.name)}</div>
-          <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:2px">${fmtDate(s.date)}${s.timeStart?' &middot; '+s.timeStart+(s.timeEnd?' – '+s.timeEnd:''):''}</div>
+          <div style="font-size:13px;color:rgba(255,255,255,.65);margin-top:2px">${fmtDate(s.date)}${s.timeStart?' &middot; '+s.timeStart+(s.timeEnd?' ‚Äì '+s.timeEnd:''):''}</div>
         </div>
         <table style="width:100%;border-collapse:collapse;background:#fff">${groupSections}</table>
       </div>`;
@@ -1705,9 +1705,9 @@ function buildEmailHTML(schichten){
   </div></body></html>`;
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    VIEW: EINSTELLUNGEN
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderEinstellungen(){
   document.getElementById('page-title').textContent = 'Einstellungen';
   document.getElementById('page-actions').innerHTML='';
@@ -1717,7 +1717,7 @@ function renderEinstellungen(){
       <div class="card-body">
         <div class="form-group"><label class="field-label">Neuer PIN (4-stellig)</label>
           <div style="display:flex;gap:8px">
-            <input type="password" id="new-pin" maxlength="4" placeholder="••••" style="max-width:120px">
+            <input type="password" id="new-pin" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢" style="max-width:120px">
             <button class="btn btn-acc btn-sm" onclick="savePin()">Speichern</button>
           </div>
         </div>
@@ -1727,13 +1727,13 @@ function renderEinstellungen(){
     <div class="card" style="margin-bottom:12px">
       <div class="card-header"><h2>Daten-Sync</h2></div>
       <div class="card-body">
-        <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Exportiere alle Daten als Code – kopiere ihn auf ein anderes Gerät und importiere ihn dort.</p>
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Exportiere alle Daten als Code ‚Äì kopiere ihn auf ein anderes Ger√§t und importiere ihn dort.</p>
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
           <button class="btn btn-acc btn-sm" onclick="syncExportCode()">Sync-Code generieren</button>
           <button class="btn btn-sec btn-sm" onclick="openSyncPull()">Code importieren</button>
         </div>
         <div id="sync-export-box" style="display:none">
-          <label class="field-label">Sync-Code (kopieren &amp; auf anderem Gerät einfügen)</label>
+          <label class="field-label">Sync-Code (kopieren &amp; auf anderem Ger√§t einf√ºgen)</label>
           <textarea id="sync-export-ta" rows="4" readonly style="font-family:monospace;font-size:11px;word-break:break-all;margin-bottom:8px"></textarea>
           <button class="btn btn-acc btn-sm" onclick="copySyncCode()">Kopieren</button>
           <span id="sync-copy-ok" class="hidden" style="font-size:12px;color:var(--suc);margin-left:8px">Kopiert!</span>
@@ -1747,7 +1747,7 @@ function renderEinstellungen(){
           <button class="btn btn-sec btn-sm" onclick="exportJSON()">JSON exportieren</button>
           <button class="btn btn-sec btn-sm" onclick="document.getElementById('imp-file').click()">JSON importieren</button>
           <input type="file" id="imp-file" accept=".json" class="hidden" onchange="importJSON(this)">
-          <button class="btn btn-dan-ghost btn-sm" onclick="resetData()">Alle Daten löschen</button>
+          <button class="btn btn-dan-ghost btn-sm" onclick="resetData()">Alle Daten l√∂schen</button>
         </div>
       </div>
     </div>`;
@@ -1756,7 +1756,7 @@ function renderEinstellungen(){
 function savePin(){
   const p = document.getElementById('new-pin').value;
   if(p.length!==4||isNaN(p)){ toast('PIN muss 4 Ziffern sein','err'); return; }
-  db.meta.adminPin = p; saveDB(); toast('PIN geändert','ok');
+  db.meta.adminPin = p; saveDB(); toast('PIN ge√§ndert','ok');
 }
 
 function exportJSON(){
@@ -1772,17 +1772,17 @@ function importJSON(input){
     try{
       db = JSON.parse(e.target.result);
       saveDB(); toast('Importiert','ok'); showView(currentView);
-    }catch{ toast('Ungültige Datei','err'); }
+    }catch{ toast('Ung√ºltige Datei','err'); }
   };
   r.readAsText(file);
 }
 
 function resetData(){
-  if(!confirm('Alle Daten wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) return;
-  db = defaultDB(); saveDB(); toast('Daten gelöscht'); showView('einstellungen');
+  if(!confirm('Alle Daten wirklich l√∂schen? Diese Aktion kann nicht r√ºckg√§ngig gemacht werden.')) return;
+  db = defaultDB(); saveDB(); toast('Daten gel√∂scht'); showView('einstellungen');
 }
 
-/* Sync via Base64-Code (kein Server nötig) */
+/* Sync via Base64-Code (kein Server n√∂tig) */
 function syncExportCode(){
   try{
     const code = btoa(unescape(encodeURIComponent(JSON.stringify(db))));
@@ -1806,9 +1806,9 @@ function openSyncPull(){
   openModal(`
     <div class="modal-header"><h3>Sync-Code importieren</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
     <div class="modal-body">
-      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">Füge hier den Sync-Code vom anderen Gerät ein.</p>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">F√ºge hier den Sync-Code vom anderen Ger√§t ein.</p>
       <div class="form-group"><label class="field-label">Sync-Code</label>
-        <textarea id="sync-code-inp" rows="5" placeholder="Code hier einfügen..." style="font-family:monospace;font-size:11px;word-break:break-all"></textarea>
+        <textarea id="sync-code-inp" rows="5" placeholder="Code hier einf√ºgen..." style="font-family:monospace;font-size:11px;word-break:break-all"></textarea>
       </div>
     </div>
     <div class="modal-footer">
@@ -1822,15 +1822,15 @@ function syncPull(){
   if(!code){ toast('Code fehlt','err'); return; }
   try{
     const data = JSON.parse(decodeURIComponent(escape(atob(code))));
-    if(!data.persons||!data.groups) throw new Error('Ungültiges Format');
+    if(!data.persons||!data.groups) throw new Error('Ung√ºltiges Format');
     db = data;
     saveDB(); closeModal(); toast('Importiert!','ok'); showView(currentView);
-  }catch(e){ toast('Ungültiger Code','err'); }
+  }catch(e){ toast('Ung√ºltiger Code','err'); }
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    UTILS
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function openModal(html, cls=''){
   const mo = document.getElementById('mo');
   const mc = document.getElementById('mc');
@@ -1864,9 +1864,9 @@ function getDienstName(did){
   return did;
 }
 
-/* ═══════════════════════════════════════════
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    BOOT
-═══════════════════════════════════════════ */
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 initAuth();
 </script>
 </body>
