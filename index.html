@@ -1,1478 +1,1532 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Revive Youth Stats</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script>
-    firebase.initializeApp({
-      apiKey:            "AIzaSyAB9ugtPhwbXTJc9mZia6a_x54LEYLz5PE",
-      authDomain:        "r3zahlen.firebaseapp.com",
-      projectId:         "r3zahlen",
-      storageBucket:     "r3zahlen.firebasestorage.app",
-      messagingSenderId: "1071865171603",
-      appId:             "1:1071865171603:web:399ef56359d043e7544766"
-    });
-    const db = firebase.firestore();
-  </script>
-  <style>
-    * { box-sizing: border-box; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #0f0f1a; }
-    ::-webkit-scrollbar-thumb { background: #4c1d95; border-radius: 3px; }
-    body { background: #0f0f1a; color: #e2e8f0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; }
-    .glass { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-    .glass-hover:hover { background: rgba(255,255,255,0.07); }
-    .glow { box-shadow: 0 0 28px rgba(139,92,246,0.1); }
-    .grad { background: linear-gradient(135deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.65); cursor: pointer; }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: #8b5cf6 !important; }
-    select option { background: #1e1b2e; color: #e2e8f0; }
-    @keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    .up { animation: up .2s ease; }
-    .pill { display:inline-flex; align-items:center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
-    .toggle { width: 36px; height: 20px; border-radius: 10px; position: relative; cursor: pointer; transition: background .2s; border: none; }
-    .toggle::after { content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:transform .2s; }
-    .toggle.on::after { transform: translateX(16px); }
-  </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R3 Dienstplan</title>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b27;--bg3:#1e2638;
+  --brd:rgba(255,255,255,.07);--brd2:rgba(255,255,255,.13);
+  --acc:#7c3aed;--acc2:#8b5cf6;--acc-l:rgba(124,58,237,.18);
+  --txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;
+  --suc:#10b981;--suc-l:rgba(16,185,129,.15);
+  --war:#f59e0b;--war-l:rgba(245,158,11,.15);
+  --dan:#ef4444;--dan-l:rgba(239,68,68,.15);
+  --r:8px;--rl:12px;
+  --sh:0 1px 3px rgba(0,0,0,.3),0 1px 2px rgba(0,0,0,.2);
+  --shm:0 4px 20px rgba(0,0,0,.4);
+  --shl:0 10px 40px rgba(0,0,0,.5);
+  --nav-h:56px;
+  --trans:.15s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--txt);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ‚îÄ‚îÄ SCROLLBAR ‚îÄ‚îÄ */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+
+/* ‚îÄ‚îÄ LOGIN ‚îÄ‚îÄ */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+.login-box{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);padding:36px;width:100%;max-width:380px;box-shadow:var(--shl)}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.login-logo-icon{width:42px;height:42px;border-radius:10px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0}
+.login-logo-text{font-size:20px;font-weight:800;color:var(--txt);letter-spacing:-.5px}
+.login-logo-sub{font-size:11px;color:var(--txt3);font-weight:500;margin-top:1px}
+.login-title{font-size:22px;font-weight:800;color:var(--txt);margin-bottom:4px;letter-spacing:-.3px}
+.login-sub{font-size:13px;color:var(--txt2);margin-bottom:24px}
+
+/* ‚îÄ‚îÄ TOP NAV ‚îÄ‚îÄ */
+.topnav{height:var(--nav-h);background:var(--bg2);border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:0;padding:0 20px;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:10px;margin-right:24px;flex-shrink:0;text-decoration:none}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;background:var(--acc);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff}
+.nav-logo-name{font-size:15px;font-weight:800;color:var(--txt);letter-spacing:-.3px}
+.nav-tabs{display:flex;gap:1px;flex:1;overflow-x:auto;scrollbar-width:none}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{padding:0 14px;height:var(--nav-h);display:flex;align-items:center;gap:7px;border:none;background:transparent;color:var(--txt2);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;font-family:inherit;border-bottom:2px solid transparent;transition:all var(--trans);position:relative;top:1px}
+.nav-tab:hover{color:var(--txt);background:rgba(255,255,255,.04)}
+.nav-tab.active{color:var(--acc2);border-bottom-color:var(--acc2);background:rgba(139,92,246,.07)}
+.nav-sep{width:1px;height:24px;background:var(--brd);margin:0 8px;flex-shrink:0}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+
+/* ‚îÄ‚îÄ CONTENT ‚îÄ‚îÄ */
+.content{padding:28px 24px;max-width:1100px;margin:0 auto}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.page-title{font-size:22px;font-weight:800;color:var(--txt);letter-spacing:-.4px}
+.page-sub{font-size:13px;color:var(--txt2);margin-top:3px}
+.page-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ‚îÄ‚îÄ BUTTONS ‚îÄ‚îÄ */
+.btn{padding:8px 14px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all var(--trans);line-height:1.4;white-space:nowrap;font-family:inherit;letter-spacing:.1px}
+.btn-acc{background:var(--acc);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.35)}
+.btn-acc:hover{background:var(--acc2);box-shadow:0 2px 12px rgba(139,92,246,.45)}
+.btn-sec{background:var(--bg3);color:var(--txt);border:1px solid var(--brd2)}
+.btn-sec:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18)}
+.btn-ghost{background:transparent;color:var(--txt2)}
+.btn-ghost:hover{background:rgba(255,255,255,.06);color:var(--txt)}
+.btn-dan{background:var(--dan);color:#fff}
+.btn-dan:hover{background:#dc2626}
+.btn-dan-ghost{background:transparent;color:var(--dan)}
+.btn-dan-ghost:hover{background:var(--dan-l)}
+.btn-suc{background:var(--suc);color:#fff}
+.btn-suc:hover{background:#059669}
+.btn-sm{padding:6px 11px;font-size:12px;border-radius:7px}
+.btn-xs{padding:3px 8px;font-size:11px;border-radius:6px}
+.btn-icon{padding:7px;border-radius:7px;aspect-ratio:1}
+.hidden{display:none!important}
+
+/* ‚îÄ‚îÄ CARDS ‚îÄ‚îÄ */
+.card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden}
+.card+.card{margin-top:10px}
+.card-hd{padding:13px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(255,255,255,.02)}
+.card-hd h2{font-size:13px;font-weight:700;color:var(--txt)}
+.card-body{padding:18px}
+
+/* ‚îÄ‚îÄ FORMS ‚îÄ‚îÄ */
+.form-group{margin-bottom:14px}
+.form-group:last-child{margin-bottom:0}
+.field-label{display:block;font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+input:not([type=radio]):not([type=checkbox]):not([type=color]),select,textarea{width:100%;padding:8px 11px;border:1px solid var(--brd2);border-radius:var(--r);font-size:13px;background:var(--bg3);color:var(--txt);outline:none;transition:border-color var(--trans),box-shadow var(--trans);font-family:inherit}
+input:not([type=radio]):not([type=checkbox]):not([type=color]):focus,select:focus,textarea:focus{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(139,92,246,.18)}
+select option{background:var(--bg2)}
+textarea{resize:vertical;min-height:60px}
+.form-grid{display:grid;gap:12px}
+.col2{grid-template-columns:1fr 1fr}
+.col3{grid-template-columns:1fr 1fr 1fr}
+input[type=color]{width:36px;height:32px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--brd2);background:var(--bg3)}
+
+/* ‚îÄ‚îÄ MODAL ‚îÄ‚îÄ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);animation:fadeIn .15s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:var(--shl);animation:slideUp .18s ease}
+@keyframes slideUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-lg{max-width:700px}
+.modal-header{padding:18px 20px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1;border-radius:var(--rl) var(--rl) 0 0}
+.modal-header h3{font-size:16px;font-weight:700;color:var(--txt)}
+.modal-body{padding:18px 20px}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--brd);display:flex;gap:8px;justify-content:flex-end;background:rgba(255,255,255,.02);border-radius:0 0 var(--rl) var(--rl)}
+.close-btn{width:28px;height:28px;border-radius:7px;border:none;background:var(--bg3);color:var(--txt2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all var(--trans);flex-shrink:0}
+.close-btn:hover{background:var(--dan-l);color:var(--dan)}
+
+/* ‚îÄ‚îÄ TABS ‚îÄ‚îÄ */
+.mtabs{display:flex;gap:2px;background:var(--bg3);border-radius:var(--r);padding:3px;margin-bottom:16px}
+.mtab{flex:1;padding:6px 10px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:var(--txt2);transition:all var(--trans);font-family:inherit;text-align:center}
+.mtab.active{background:var(--bg2);color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+
+/* ‚îÄ‚îÄ TOAST ‚îÄ‚îÄ */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{background:var(--bg3);color:var(--txt);padding:10px 14px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--shl);animation:toastIn .15s ease;max-width:280px;display:flex;align-items:center;gap:8px;border:1px solid var(--brd2)}
+.toast.ok{background:#064e3b;border-color:rgba(16,185,129,.3);color:#a7f3d0}
+.toast.err{background:#450a0a;border-color:rgba(239,68,68,.3);color:#fca5a5}
+@keyframes toastIn{from{transform:translateX(10px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ‚îÄ‚îÄ BADGES ‚îÄ‚îÄ */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.2px}
+.badge-ok{background:var(--suc-l);color:#34d399}
+.badge-war{background:var(--war-l);color:var(--war)}
+.badge-open{background:rgba(255,255,255,.06);color:var(--txt3)}
+.badge-acc{background:var(--acc-l);color:var(--acc2)}
+.badge-draft{background:rgba(255,255,255,.06);color:var(--txt3);border:1px solid var(--brd)}
+.badge-pub{background:var(--suc-l);color:#34d399}
+
+/* ‚îÄ‚îÄ AVATAR ‚îÄ‚îÄ */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;flex-shrink:0;font-size:11px}
+.av-lg{width:38px;height:38px;font-size:13px}
+.av-md{width:28px;height:28px;font-size:10px}
+.av-sm{width:22px;height:22px;font-size:8px}
+
+/* ‚îÄ‚îÄ SEARCH ‚îÄ‚îÄ */
+.search-bar{display:flex;align-items:center;gap:7px;border:1px solid var(--brd2);border-radius:var(--r);background:var(--bg3);padding:0 10px;max-width:240px;transition:border-color var(--trans)}
+.search-bar:focus-within{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+.search-bar input{border:none!important;background:transparent!important;padding:7px 0!important;flex:1;min-width:0;box-shadow:none!important;outline:none;color:var(--txt)}
+.search-icon{color:var(--txt3);flex-shrink:0}
+
+/* ‚îÄ‚îÄ PERSONS ‚îÄ‚îÄ */
+.persons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.person-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);padding:14px;display:flex;align-items:flex-start;gap:11px;transition:all var(--trans);cursor:pointer}
+.person-card:hover{border-color:var(--brd2);background:var(--bg3);transform:translateY(-1px);box-shadow:var(--shm)}
+.pc-name{font-size:13px;font-weight:700;color:var(--txt)}
+.pc-role{font-size:11px;color:var(--txt3);margin-top:1px}
+.pc-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+
+/* ‚îÄ‚îÄ GROUPS ‚îÄ‚îÄ */
+.group-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden}
+.group-card+.group-card{margin-top:10px}
+.group-hd{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--brd);background:rgba(255,255,255,.02)}
+.group-color-bar{width:3px;height:18px;border-radius:2px;flex-shrink:0}
+.dienst-row{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--brd)}
+.dienst-row:last-child{border-bottom:none}
+
+/* ‚îÄ‚îÄ SCHICHT CARDS ‚îÄ‚îÄ */
+.schicht-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:10px;transition:all var(--trans)}
+.schicht-card:hover{border-color:var(--brd2)}
+.schicht-card-hd{padding:14px 18px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--brd)}
+.schicht-date{font-size:11px;font-weight:700;color:var(--txt3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:2px}
+.schicht-name{font-size:15px;font-weight:700;color:var(--txt)}
+.schicht-time{font-size:12px;color:var(--txt3)}
+.schicht-body{padding:14px 18px}
+.slot-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.slot-row:last-child{border-bottom:none}
+.slot-dienst{font-size:12px;font-weight:600;color:var(--txt2);width:110px;flex-shrink:0}
+.slot-person{flex:1;display:flex;align-items:center;gap:8px}
+.slot-empty{font-size:12px;color:var(--txt3);font-style:italic}
+.slot-actions{display:flex;gap:4px}
+.group-section-label{font-size:10px;font-weight:700;color:var(--txt3);letter-spacing:1px;text-transform:uppercase;padding:8px 0 4px;border-bottom:1px solid rgba(255,255,255,.04);margin-bottom:4px}
+
+/* ‚îÄ‚îÄ TOOLBAR ‚îÄ‚îÄ */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+
+/* ‚îÄ‚îÄ PERIOD BAR ‚îÄ‚îÄ */
+.period-bar{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--brd);border-radius:var(--r);padding:6px 12px}
+.period-bar label{font-size:11px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+.period-bar input{width:130px;border:none;background:transparent;padding:2px 4px;font-size:13px;color:var(--txt)}
+.period-bar input:focus{box-shadow:none;border:none}
+
+/* ‚îÄ‚îÄ CHECKLIST ‚îÄ‚îÄ */
+.check-row{display:flex;align-items:center;gap:9px;padding:5px 0}
+.check-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--acc2);cursor:pointer}
+.check-row label{font-size:13px;color:var(--txt2);cursor:pointer}
+
+/* ‚îÄ‚îÄ SHARE ‚îÄ‚îÄ */
+.share-preview{border:1px solid var(--brd);border-radius:var(--r);background:var(--bg3);padding:12px;font-family:monospace;font-size:12px;color:var(--txt2);white-space:pre-wrap;max-height:200px;overflow-y:auto;line-height:1.6}
+.copy-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+
+/* ‚îÄ‚îÄ VORLAGE ‚îÄ‚îÄ */
+.vorl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.vorl-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);padding:14px;transition:all var(--trans);cursor:pointer}
+.vorl-card:hover{border-color:var(--acc2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(124,58,237,.2)}
+
+/* ‚îÄ‚îÄ STATS ‚îÄ‚îÄ */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);padding:16px;text-align:center}
+.stat-num{font-size:30px;font-weight:900;color:var(--acc2);letter-spacing:-1px;line-height:1}
+.stat-lbl{font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-top:5px}
+
+/* ‚îÄ‚îÄ DOT ‚îÄ‚îÄ */
+.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.dot-suc{background:var(--suc)}
+.dot-war{background:var(--war)}
+.dot-dan{background:var(--dan)}
+.dot-gray{background:var(--txt3)}
+.dot-acc{background:var(--acc2)}
+
+/* ‚îÄ‚îÄ EMPTY ‚îÄ‚îÄ */
+.empty{text-align:center;padding:56px 24px;color:var(--txt3)}
+.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4}
+.empty-title{font-size:15px;font-weight:600;color:var(--txt2);margin-bottom:6px}
+.empty-sub{font-size:13px}
+
+/* ‚îÄ‚îÄ DIVIDER ‚îÄ‚îÄ */
+.divider{height:1px;background:var(--brd);margin:16px 0}
+
+/* ‚îÄ‚îÄ WISH ROW ‚îÄ‚îÄ */
+.wish-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.wish-row:last-child{border-bottom:none}
+.abs-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);border:1px solid var(--brd);margin-bottom:6px;background:var(--bg3);transition:all var(--trans)}
+.abs-row:hover{border-color:var(--brd2)}
+
+/* ‚îÄ‚îÄ PALETTE SWATCH ‚îÄ‚îÄ */
+.swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;transition:all var(--trans);flex-shrink:0;border:2px solid transparent}
+.swatch:hover{transform:scale(1.15)}
+.swatch.sel{border-color:#fff!important}
+
+/* ‚îÄ‚îÄ SYNC ‚îÄ‚îÄ */
+.sync-preview{font-family:monospace;font-size:11px;background:var(--bg3);border:1px solid var(--brd);border-radius:var(--r);padding:12px;word-break:break-all;color:var(--txt2);max-height:120px;overflow-y:auto}
+
+/* ‚îÄ‚îÄ RESPONSIVE ‚îÄ‚îÄ */
+@media(max-width:600px){
+  .content{padding:16px 14px}
+  .col2,.col3{grid-template-columns:1fr}
+  .persons-grid{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-// Chart.js Standardschrift auf Inter setzen (verhindert Symbol-Probleme in Canvas)
-Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
-Chart.defaults.font.size   = 12;
-
-// ‚îÄ‚îÄ SVG Icons ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const SI = ({ p, size=16, stroke=2 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
-    stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
-    {[].concat(p).map((d,i) => <path key={i} d={d}/>)}
-  </svg>
-);
-const IC = {
-  chart:    "M3 3v18h18M7 16l4-4 4 4 4-5",
-  compare:  ["M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"],
-  plus:     "M12 5v14M5 12h14",
-  list:     ["M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2","M9 5a2 2 0 002 2h2a2 2 0 002-2","M9 5a2 2 0 012-2h2a2 2 0 012 2M9 12h6M9 16h4"],
-  tag:      ["M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z","M7 7h.01"],
-  edit:     ["M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5","M17.586 3.586a2 2 0 012.828 2.828L12 15l-4 1 1-4 8.586-8.586z"],
-  trash:    ["M3 6h18","M19 6l-1 14H6L5 6","M8 6V4h8v2"],
-  download: "M3 17v3h18v-3M12 3v11m-4-4l4 4 4-4",
-  upload:   "M3 17v3h18v-3M12 15V4m4 4l-4-4-4 4",
-  x:        "M18 6L6 18M6 6l12 12",
-  check:    "M20 6L9 17l-5-5",
-  warn:     ["M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z","M12 9v4M12 17h.01"],
-  calendar: ["M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"],
-  chevDown: "M6 9l6 6 6-6",
-  chevUp:   "M18 15l-6-6-6 6",
-};
-
-// ‚îÄ‚îÄ Konstanten ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const METRICS = [
-  { key: 'besucher',       label: 'Besucher',       color: '#6366f1' },
-  { key: 'erstbesucher',   label: 'Erstbesucher',   color: '#ec4899' },
-  { key: 'entscheidungen', label: 'Entscheidungen', color: '#f59e0b' },
-  { key: 'taufen',         label: 'Taufen',         color: '#10b981' },
-];
-
-const DEFAULT_TYPES = [
-  { id: 'gottesdienst', name: 'Gottesdienst',        color: '#6366f1', isRange: false },
-  { id: 'jugendabend',  name: 'Jugendabend',         color: '#8b5cf6', isRange: false },
-  { id: 'freizeit',     name: 'Freizeit',            color: '#f59e0b', isRange: true  },
-  { id: 'konferenz',    name: 'Konferenz',           color: '#ec4899', isRange: true  },
-  { id: 'sonderveranst',name: 'Sonderveranstaltung', color: '#10b981', isRange: false },
-  { id: 'kleingruppe',  name: 'Kleingruppe',         color: '#06b6d4', isRange: false },
-];
-
-// ‚îÄ‚îÄ Chart-Konfiguration (Funktion, um Mutation zu verhindern) ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const FONT = { family: "'Inter', system-ui, sans-serif" };
-const TOOLTIP = {
-  backgroundColor: 'rgba(10,10,20,0.97)', titleColor: '#f1f5f9',
-  bodyColor: '#94a3b8', borderColor: 'rgba(139,92,246,0.3)',
-  borderWidth: 1, padding: 10, cornerRadius: 8,
-};
-const fmtTick = v => v >= 10000 ? (v/1000).toFixed(0)+'k' : v >= 1000 ? (v/1000).toFixed(1).replace('.0','')+'k' : v;
-
-// mkCfg: beginAtZero=true fuer Balken, false fuer Linien (auto-skaliert auf Datenwerte)
-const mkCfg = (extra = {}) => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: { duration: 350 },
-  plugins: {
-    legend: { labels: { color: '#94a3b8', padding: 12, usePointStyle: true, font: { ...FONT, size: 11 } } },
-    tooltip: TOOLTIP,
-    ...((extra.plugins) || {}),
-  },
-  scales: {
-    x: {
-      ticks: { color: '#475569', maxRotation: 35, font: { ...FONT, size: 10 } },
-      grid: { color: 'rgba(255,255,255,0.04)' },
-    },
-    y: {
-      ticks: { color: '#475569', precision: 0, maxTicksLimit: extra.maxTicks||5, font: { ...FONT, size: 10 }, callback: fmtTick },
-      grid: { color: 'rgba(255,255,255,0.04)' },
-      beginAtZero: extra.beginAtZero !== false,
-      ...(extra.suggestedMax !== undefined ? { suggestedMax: extra.suggestedMax } : {}),
-    },
-    ...((extra.scales) || {}),
-  },
-});
-
-const mkCfgNoScale = () => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: { duration: 400 },
-  plugins: {
-    legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 10, usePointStyle: true, font: { ...FONT, size: 11 } } },
-    tooltip: TOOLTIP,
-  },
-});
-
-// ‚îÄ‚îÄ Hilfsfunktionen ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const genId  = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
-const today  = () => new Date().toISOString().split('T')[0];
-const daysAgo = n => new Date(Date.now() - n * 864e5).toISOString().split('T')[0];
-const fmtDe  = d => { if (!d) return ''; const [y,m,dd] = d.split('-'); return `${dd}.${m}.${y}`; };
-const fmtShort = d => { if (!d) return ''; const [,m,dd] = d.split('-'); return `${dd}.${m}`; };
-const fmtRange = (d, t) => t && t !== d ? `${fmtDe(d)} - ${fmtDe(t)}` : fmtDe(d);
-const monthLabel = ym => {
-  const [y, m] = ym.split('-');
-  return new Date(y, m - 1, 1).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-};
-const firstOfMonth = ym => `${ym}-01`;
-const lastOfMonth  = ym => { const [y,m] = ym.split('-').map(Number); return new Date(y,m,0).toISOString().split('T')[0]; };
-const calcTotals = ents => METRICS.reduce((acc,m) => ({ ...acc, [m.key]: ents.reduce((s,e) => s+(Number(e[m.key])||0),0) }), {});
-const dPct = (a,b) => a===0 ? (b>0?100:0) : Math.round(((b-a)/a)*100);
-
-// ‚îÄ‚îÄ ChartCanvas ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-// Jede Instanz bekommt eine eigene Kopie der Options &mdash; verhindert Chart.js-Mutation
-const ChartCanvas = ({ id, type, data, options, h = 240 }) => {
-  const ref  = useRef(null);
-  const inst = useRef(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    if (inst.current) { inst.current.destroy(); inst.current = null; }
-    if (!data?.labels?.length) return;
-    inst.current = new Chart(ref.current.getContext('2d'), { type, data, options });
-    return () => { if (inst.current) { inst.current.destroy(); inst.current = null; } };
-  }, [id]); // id enth&auml;lt alle relevanten Abh&auml;ngigkeiten
-
-  if (!data?.labels?.length)
-    return <div style={{height:h}} className="flex items-center justify-center text-slate-600 text-sm">Keine Daten im Zeitraum</div>;
-  return <canvas ref={ref} style={{ height: h, display: 'block' }} />;
-};
-
-// ‚îÄ‚îÄ Einklappbare Chart-Karte ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const ChartCard = ({ title, children, extra, defaultOpen=true, className='' }) => {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className={`glass rounded-2xl glow overflow-hidden ${className}`}>
-      <button onClick={()=>setOpen(p=>!p)}
-        className="w-full flex items-center justify-between px-5 py-3 hover:bg-white/5 transition-all">
-        <h3 className="font-semibold text-slate-200 text-sm">{title}</h3>
-        <div className="flex items-center gap-2">
-          {extra}
-          <span className="text-slate-500 transition-transform" style={{transform:open?'rotate(0deg)':'rotate(-90deg)',display:'inline-flex',transition:'transform .2s'}}>
-            <SI p={IC.chevDown} size={13}/>
-          </span>
-        </div>
-      </button>
-      {open && <div className="px-5 pb-4">{children}</div>}
-    </div>
-  );
-};
-
-// ‚îÄ‚îÄ Excel-Export ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const exportExcel = (entries, eventTypes) => {
-  const wb = XLSX.utils.book_new();
-  const etMap = Object.fromEntries(eventTypes.map(t => [t.id, t.name]));
-  const tot   = calcTotals(entries);
-
-  // Stil-Helfer
-  const HS = (rgb='3B0764') => ({ font:{bold:true,color:{rgb:'FFFFFF'},sz:11}, fill:{patternType:'solid',fgColor:{rgb}}, alignment:{horizontal:'center',vertical:'center'} });
-  const BS = { font:{bold:true}, alignment:{horizontal:'left'} };
-  const NS = (align='right') => ({ alignment:{horizontal:align} });
-  const GS = { font:{color:{rgb:'64748B'},sz:10}, alignment:{horizontal:'left'} };
-  const H  = (v,rgb='4C1D95') => ({v, t:'s', s:HS(rgb)});
-  const B  = v => ({v, t:'s', s:BS});
-  const N  = (v,fmt='0') => ({v:Number(v)||0, t:'n', z:fmt, s:NS()});
-  const NF = v => ({v:Number(v)||0, t:'n', z:'0.0', s:NS()});
-  const G  = v => ({v, t:'s', s:GS});
-  const T  = v => ({v, t:'s'});
-
-  // ‚îÄ‚îÄ Sheet 1: Zusammenfassung ‚îÄ‚îÄ
-  const etSection = [...eventTypes, {id:'',name:'(kein Typ)'}]
-    .map(et => {
-      const sub = entries.filter(e=>(e.eventTypeId||'')===et.id);
-      if (!sub.length && et.id) return null;
-      const subTot = calcTotals(sub);
-      return [B(et.name), N(sub.length), ...METRICS.map(m=>N(subTot[m.key])),
-        NF(sub.length ? subTot.besucher/sub.length : 0)];
-    }).filter(Boolean);
-
-  const ws1rows = [
-    [H('REVIVE Youth Stats','3B0764'), H('','3B0764'), H('','3B0764'), H('','3B0764'), H('','3B0764'), H('','3B0764')],
-    [G(`Exportiert: ${fmtDe(today())}  |  Eintr\u00e4ge gesamt: ${entries.length}`), G(''), G(''), G(''), G(''), G('')],
-    [],
-    [H('Metrik','5B21B6'), H('Gesamt','5B21B6'), H('Avg. pro Event','5B21B6'), H('Maximum','5B21B6'), H('Minimum','5B21B6'), H('Top-Event','5B21B6')],
-    ...METRICS.map(m => {
-      const vals = entries.map(e=>Number(e[m.key])||0);
-      const maxIdx = vals.indexOf(Math.max(...vals));
-      const topEvt = entries[maxIdx]?.event || (entries[maxIdx] ? fmtDe(entries[maxIdx].date) : '\u2014');
-      return [B(m.label), N(tot[m.key]), NF(entries.length?tot[m.key]/entries.length:0),
-        N(vals.length?Math.max(...vals):0), N(vals.length?Math.min(...vals):0), T(topEvt)];
-    }),
-    [],
-    [H('Nach Event-Typ','5B21B6'), H('Events','5B21B6'), H('Besucher','5B21B6'),
-     H('Erstbesucher','5B21B6'), H('Entscheidungen','5B21B6'), H('Taufen','5B21B6'), H('Avg. Besucher','5B21B6')],
-    ...etSection,
-  ];
-  const ws1 = XLSX.utils.aoa_to_sheet(ws1rows);
-  ws1['!cols'] = [26,12,16,12,12,24].map(w=>({wch:w}));
-  ws1['!merges'] = [
-    {s:{r:0,c:0},e:{r:0,c:5}},
-    {s:{r:1,c:0},e:{r:1,c:5}},
-  ];
-  ws1['!rows'] = [{hpt:22},{hpt:16}];
-  XLSX.utils.book_append_sheet(wb, ws1, 'Zusammenfassung');
-
-  // ‚îÄ‚îÄ Sheet 2: Alle Daten ‚îÄ‚îÄ
-  const sorted = [...entries].sort((a,b)=>b.date.localeCompare(a.date));
-  const ws2rows = [
-    [H('Datum'),H('Datum bis'),H('Event'),H('Event-Typ'),H('Besucher'),H('Erstbesucher'),H('Entscheidungen'),H('Taufen'),H('Notizen')],
-    ...sorted.map(e=>[
-      T(fmtDe(e.date)), T(e.dateTo?fmtDe(e.dateTo):''),
-      T(e.event||''), T(etMap[e.eventTypeId]||''),
-      N(e.besucher), N(e.erstbesucher), N(e.entscheidungen), N(e.taufen),
-      T(e.notes||''),
-    ]),
-  ];
-  const ws2 = XLSX.utils.aoa_to_sheet(ws2rows);
-  ws2['!cols'] = [12,12,32,22,12,14,16,10,50].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws2, 'Alle Daten');
-
-  // ‚îÄ‚îÄ Sheet 3: Monatlich ‚îÄ‚îÄ
-  const mMap = {};
-  entries.forEach(e=>{
-    const k=e.date.slice(0,7);
-    if(!mMap[k]) mMap[k]={count:0,besucher:0,erstbesucher:0,entscheidungen:0,taufen:0};
-    METRICS.forEach(m=>mMap[k][m.key]+=Number(e[m.key])||0);
-    mMap[k].count++;
-  });
-  const months = Object.entries(mMap).sort();
-  const ws3rows = [
-    [H('Monat'),H('Events'),H('Besucher'),H('Erstbesucher'),H('Entscheidungen'),H('Taufen'),
-     H('Avg. Besucher'),H('Avg. Erstbesucher'),H('Avg. Entscheidungen'),H('Avg. Taufen')],
-    ...months.map(([k,v])=>[
-      B(monthLabel(k)), N(v.count),
-      N(v.besucher), N(v.erstbesucher), N(v.entscheidungen), N(v.taufen),
-      NF(v.besucher/v.count), NF(v.erstbesucher/v.count),
-      NF(v.entscheidungen/v.count), NF(v.taufen/v.count),
-    ]),
-    [],
-    [B('GESAMT'), N(entries.length), ...METRICS.map(m=>N(tot[m.key])), NF(months.length?months.reduce((s,[,v])=>s+v.besucher,0)/months.length:0)],
-  ];
-  const ws3 = XLSX.utils.aoa_to_sheet(ws3rows);
-  ws3['!cols'] = [22,8,12,14,16,10,13,15,18,12].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws3, 'Monatlich');
-
-  // ‚îÄ‚îÄ Sheet 4: Quartal ‚îÄ‚îÄ
-  const qMap = {};
-  entries.forEach(e=>{
-    const yr=e.date.slice(0,4), mo=parseInt(e.date.slice(5,7)), q=Math.ceil(mo/3);
-    const k=`${yr}-Q${q}`;
-    if(!qMap[k]) qMap[k]={count:0,besucher:0,erstbesucher:0,entscheidungen:0,taufen:0};
-    METRICS.forEach(m=>qMap[k][m.key]+=Number(e[m.key])||0);
-    qMap[k].count++;
-  });
-  const ws4rows = [
-    [H('Quartal'),H('Events'),H('Besucher'),H('Erstbesucher'),H('Entscheidungen'),H('Taufen'),H('Avg. Besucher'),H('Avg. Erstbesucher')],
-    ...Object.entries(qMap).sort().map(([k,v])=>[
-      B(k), N(v.count),
-      N(v.besucher), N(v.erstbesucher), N(v.entscheidungen), N(v.taufen),
-      NF(v.besucher/v.count), NF(v.erstbesucher/v.count),
-    ]),
-  ];
-  const ws4 = XLSX.utils.aoa_to_sheet(ws4rows);
-  ws4['!cols'] = [10,8,12,14,16,10,13,15].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws4, 'Quartal');
-
-  // ‚îÄ‚îÄ Sheet 5: J&auml;hrlich ‚îÄ‚îÄ
-  const yMap = {};
-  entries.forEach(e=>{
-    const k=e.date.slice(0,4);
-    if(!yMap[k]) yMap[k]={count:0,besucher:0,erstbesucher:0,entscheidungen:0,taufen:0};
-    METRICS.forEach(m=>yMap[k][m.key]+=Number(e[m.key])||0);
-    yMap[k].count++;
-  });
-  const ws5rows = [
-    [H('Jahr'),H('Events'),H('Besucher'),H('Erstbesucher'),H('Entscheidungen'),H('Taufen'),
-     H('Avg. Besucher/Event'),H('Avg. Erstbesucher/Event'),H('Avg. Entscheidungen/Event'),H('Avg. Taufen/Event')],
-    ...Object.entries(yMap).sort().map(([k,v])=>[
-      B(k), N(v.count),
-      N(v.besucher), N(v.erstbesucher), N(v.entscheidungen), N(v.taufen),
-      NF(v.besucher/v.count), NF(v.erstbesucher/v.count),
-      NF(v.entscheidungen/v.count), NF(v.taufen/v.count),
-    ]),
-    [],
-    [B('GESAMT'), N(entries.length), ...METRICS.map(m=>N(tot[m.key]))],
-  ];
-  const ws5 = XLSX.utils.aoa_to_sheet(ws5rows);
-  ws5['!cols'] = [8,8,12,14,16,10,18,20,20,16].map(w=>({wch:w}));
-  XLSX.utils.book_append_sheet(wb, ws5, 'J\u00e4hrlich');
-
-  XLSX.writeFile(wb, `revive-stats-${today()}.xlsx`, {cellStyles:true});
-};
-
-// ‚îÄ‚îÄ Dashboard ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const Dashboard = ({ entries, eventTypes }) => {
-  const [from,    setFrom]    = useState(daysAgo(90));
-  const [to,      setTo]      = useState(today());
-  const [preset,  setPreset]  = useState('90d');
-  const [active,  setActive]  = useState(METRICS.map(m => m.key));
-  const [view,    setView]    = useState('bar');
-  const [etF,     setEtF]     = useState('all');
-
-  const applyPreset = p => {
-    setPreset(p);
-    const t = today();
-    let f = daysAgo(90);
-    if (p==='30d')  f = daysAgo(30);
-    if (p==='year') f = `${new Date().getFullYear()}-01-01`;
-    if (p==='all')  f = entries.length ? entries.reduce((mn,e)=>e.date<mn?e.date:mn, entries[0].date) : '2020-01-01';
-    setFrom(f); setTo(t);
-  };
-
-  const filtered = useMemo(() => {
-    let list = [...entries].filter(e => e.date>=from && e.date<=to);
-    if (etF !== 'all') list = list.filter(e => e.eventTypeId===etF);
-    return list.sort((a,b) => a.date.localeCompare(b.date));
-  }, [entries, from, to, etF]);
-
-  const totals  = useMemo(() => calcTotals(filtered), [filtered]);
-  const totKey  = METRICS.map(m=>totals[m.key]).join('-'); // f&uuml;r Chart-IDs
-  const activeM = METRICS.filter(m => active.includes(m.key));
-
-  const labels = filtered.map(e => fmtShort(e.date) + (e.event ? ` - ${e.event.slice(0,10)}` : ''));
-
-  const makeLineData = (fill=false) => ({
-    labels,
-    datasets: activeM.map(m => ({
-      label: m.label, data: filtered.map(e=>Number(e[m.key])||0),
-      borderColor: m.color, backgroundColor: m.color+'22',
-      fill, tension: 0.4, pointRadius: 4, pointHoverRadius: 6,
-    })),
-  });
-
-  const barData = {
-    labels,
-    datasets: activeM.map(m => ({
-      label: m.label, data: filtered.map(e=>Number(e[m.key])||0),
-      backgroundColor: m.color+'bb', borderRadius: 4,
-    })),
-  };
-
-  const cumulData = {
-    labels,
-    datasets: activeM.map(m => {
-      let c = 0;
-      return {
-        label: m.label,
-        data: filtered.map(e=>{ c += Number(e[m.key])||0; return c; }),
-        borderColor: m.color, backgroundColor: m.color+'18',
-        fill: true, tension: 0.4, pointRadius: 3,
-      };
-    }),
-  };
-
-  const donutData = (() => {
-    const vals = METRICS.map(m=>totals[m.key]);
-    if (!vals.some(v=>v>0)) return null;
-    return {
-      labels: METRICS.map(m=>m.label),
-      datasets: [{ data: vals, backgroundColor: METRICS.map(m=>m.color+'bb'), borderColor: METRICS.map(m=>m.color), borderWidth: 2, hoverOffset: 6 }],
-    };
-  })();
-
-  const etData = (() => {
-    const types = eventTypes.filter(et => filtered.some(e=>e.eventTypeId===et.id));
-    if (!types.length) return null;
-    return {
-      labels: types.map(t=>t.name),
-      datasets: activeM.map(m => ({
-        label: m.label,
-        data: types.map(t=>filtered.filter(e=>e.eventTypeId===t.id).reduce((s,e)=>s+(Number(e[m.key])||0),0)),
-        backgroundColor: m.color+'bb', borderRadius: 4,
-      })),
-    };
-  })();
-
-  const mainData = view==='bar' ? barData : view==='area' ? makeLineData(true) : makeLineData(false);
-  const mainType = view==='bar' ? 'bar' : 'line';
-  const mainId   = `main-${view}-${from}-${to}-${active.join()}-${etF}-${totKey}`;
-
-  const toggle = k => setActive(p => p.includes(k) ? p.filter(x=>x!==k) : [...p,k]);
-
-  const PreBtn = ({p,l}) => (
-    <button onClick={()=>applyPreset(p)}
-      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${preset===p?'bg-violet-600 text-white':'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-      {l}
-    </button>
-  );
-
-  return (
-    <div className="space-y-5 up">
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">R3</div>
       <div>
-        <h1 className="text-xl font-bold grad">Dashboard</h1>
-        <p className="text-slate-500 text-sm mt-0.5">{filtered.length} Eintr&auml;ge im Zeitraum - {entries.length} gesamt</p>
+        <div class="login-logo-text">Dienstplan</div>
+        <div style="font-size:11px;color:var(--txt3)">Admin-Bereich</div>
       </div>
-
-      {/* Filter-Leiste */}
-      <div className="glass rounded-2xl p-4 space-y-3">
-        <div className="flex flex-wrap gap-2 items-center">
-          <PreBtn p="30d" l="30 Tage"/>
-          <PreBtn p="90d" l="90 Tage"/>
-          <PreBtn p="year" l="Dieses Jahr"/>
-          <PreBtn p="all" l="Alle"/>
-          <div className="flex gap-2 ml-auto flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="text-slate-500 text-xs">Von</span>
-              <input type="date" value={from} onChange={e=>{setFrom(e.target.value);setPreset('');}}
-                className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 w-36"/>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-slate-500 text-xs">Bis</span>
-              <input type="date" value={to} onChange={e=>{setTo(e.target.value);setPreset('');}}
-                className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 w-36"/>
-            </div>
-          </div>
-        </div>
-        <div className="flex gap-2 flex-wrap items-center">
-          <span className="text-slate-600 text-xs">Metriken:</span>
-          {METRICS.map(m=>(
-            <button key={m.key} onClick={()=>toggle(m.key)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all"
-              style={{
-                background: active.includes(m.key) ? m.color+'20' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${active.includes(m.key) ? m.color+'60' : 'transparent'}`,
-                color: active.includes(m.key) ? m.color : '#475569',
-              }}>
-              <span className="dot" style={{background: active.includes(m.key)?m.color:'#475569'}}/>
-              {m.label}
-            </button>
-          ))}
-          <div className="ml-auto">
-            <select value={etF} onChange={e=>setEtF(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-slate-300">
-              <option value="all">Alle Event-Typen</option>
-              {eventTypes.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* KPI-Karten */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {METRICS.map(m=>(
-          <div key={m.key} className="glass glow rounded-2xl p-4 up">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="dot" style={{width:10,height:10,background:m.color}}/>
-              <span className="text-slate-400 text-xs font-medium">{m.label}</span>
-            </div>
-            <div className="text-3xl font-bold" style={{color:m.color}}>{totals[m.key]}</div>
-            <div className="text-slate-600 text-xs mt-1">
-              {filtered.length ? `Avg. ${(totals[m.key]/filtered.length).toFixed(1)} pro Event` : '\u2014'}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Hauptgrafik */}
-      <ChartCard title={"Entwicklung \u00fcber Zeit"}
-        extra={
-          <div className="flex gap-1">
-            {[['bar','Balken'],['line','Linie'],['area','Fl\u00e4che']].map(([v,l])=>(
-              <button key={v} onClick={e=>{e.stopPropagation();setView(v);}}
-                className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${view===v?'bg-violet-600 text-white':'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-                {l}
-              </button>
-            ))}
-          </div>
-        }>
-        <ChartCanvas id={mainId} type={mainType} data={filtered.length?mainData:null}
-          options={mkCfg({ beginAtZero: view==='bar' })} h={190}/>
-      </ChartCard>
-
-      {/* Verteilung + Kumulativ */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <ChartCard title="Verteilung gesamt">
-          <ChartCanvas id={`donut-${from}-${to}-${etF}-${totKey}`} type="doughnut"
-            data={donutData} options={mkCfgNoScale()} h={170}/>
-        </ChartCard>
-        <ChartCard title="Kumulativer Verlauf">
-          <ChartCanvas id={`cum-${from}-${to}-${active.join()}-${etF}-${totKey}`} type="line"
-            data={filtered.length?cumulData:null} options={mkCfg({beginAtZero:false})} h={170}/>
-        </ChartCard>
-      </div>
-
-      {/* Nach Event-Typ */}
-      {etF==='all' && etData && (
-        <ChartCard title="Vergleich nach Event-Typ">
-          <ChartCanvas id={`et-${from}-${to}-${active.join()}-${totKey}`} type="bar"
-            data={etData} options={mkCfg()} h={170}/>
-        </ChartCard>
-      )}
-
-      {/* Einzelne Metriken */}
-      {activeM.length>0 && (
-        <ChartCard title="Einzelne Metriken" defaultOpen={false}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-            {activeM.map(m => {
-              const vals = filtered.map(e=>Number(e[m.key])||0);
-              const maxVal = vals.length ? Math.max(...vals) : 0;
-              const d = filtered.length ? {
-                labels: filtered.map(e=>fmtShort(e.date)),
-                datasets: [{label:m.label, data:vals, backgroundColor:m.color+'aa', borderRadius:4}],
-              } : null;
-              return (
-                <div key={m.key} className="rounded-xl p-3" style={{border:`1px solid ${m.color}25`,background:`${m.color}08`}}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="dot" style={{background:m.color}}/>
-                    <span className="font-semibold text-xs" style={{color:m.color}}>{m.label}</span>
-                    <span className="ml-auto text-xl font-bold" style={{color:m.color}}>{totals[m.key]}</span>
-                  </div>
-                  <ChartCanvas id={`${m.key}-${from}-${to}-${etF}-${totals[m.key]}`} type="bar" data={d}
-                    options={mkCfg({plugins:{legend:{display:false}}, suggestedMax: maxVal>0?Math.ceil(maxVal*1.15):5, maxTicks:4})} h={100}/>
-                </div>
-              );
-            })}
-          </div>
-        </ChartCard>
-      )}
-
-      {/* Tabelle */}
-      {filtered.length>0 && (
-        <ChartCard title={`Letzte Eintr\u00e4ge (${Math.min(15,filtered.length)} von ${filtered.length})`} defaultOpen={false}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                  <th className="text-left px-4 py-2 text-slate-500 text-xs font-medium">Datum</th>
-                  <th className="text-left px-4 py-2 text-slate-500 text-xs font-medium">Event</th>
-                  <th className="text-left px-3 py-2 text-slate-500 text-xs font-medium">Typ</th>
-                  {METRICS.map(m=><th key={m.key} className="text-right px-3 py-2 text-xs font-medium" style={{color:m.color}}>{m.label}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {[...filtered].reverse().slice(0,15).map((e,i)=>{
-                  const et = eventTypes.find(t=>t.id===e.eventTypeId);
-                  return (
-                    <tr key={e.id} style={{borderTop:'1px solid rgba(255,255,255,0.04)', background:i%2===0?'transparent':'rgba(255,255,255,0.015)'}}>
-                      <td className="px-4 py-1.5 text-slate-300 whitespace-nowrap text-xs">{fmtRange(e.date, e.dateTo)}</td>
-                      <td className="px-4 py-1.5 text-slate-400 max-w-[140px] truncate text-xs">{e.event||'\u2014'}</td>
-                      <td className="px-3 py-1.5">
-                        {et ? <span className="pill" style={{background:et.color+'22',color:et.color}}>{et.name}</span>
-                            : <span className="text-slate-700 text-xs">&mdash;</span>}
-                      </td>
-                      {METRICS.map(m=><td key={m.key} className="px-3 py-1.5 text-right font-semibold text-sm" style={{color:m.color}}>{Number(e[m.key])||0}</td>)}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </ChartCard>
-      )}
     </div>
-  );
-};
-
-// ‚îÄ‚îÄ Zeitraum-Vergleich ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const PERIOD_PALETTE = ['#6366f1','#ec4899','#10b981','#f59e0b','#06b6d4','#a855f7'];
-
-const Comparison = ({ entries, eventTypes }) => {
-  const [mode, setMode] = useState('month');
-  const [etF,  setEtF]  = useState('all');
-  const [periods, setPeriods] = useState([
-    { id:'a', ym:'', year:'', from:daysAgo(60),  to:today()       },
-    { id:'b', ym:'', year:'', from:daysAgo(120), to:daysAgo(61)  },
-  ]);
-
-  const availYM    = useMemo(()=>[...new Set(entries.map(e=>e.date.slice(0,7)))].sort().reverse(),[entries]);
-  const availYears = useMemo(()=>[...new Set(entries.map(e=>e.date.slice(0,4)))].sort().reverse(),[entries]);
-
-  const getRaw = p => {
-    if (mode==='month')  return p.ym   ? entries.filter(e=>e.date>=firstOfMonth(p.ym)&&e.date<=lastOfMonth(p.ym)) : [];
-    if (mode==='year')   return p.year ? entries.filter(e=>e.date>=`${p.year}-01-01`&&e.date<=`${p.year}-12-31`) : [];
-    return entries.filter(e=>e.date>=p.from&&e.date<=p.to);
-  };
-
-  const periodData = useMemo(()=>periods.map(p=>{
-    let list = getRaw(p);
-    if (etF!=='all') list = list.filter(e=>e.eventTypeId===etF);
-    return { ...p, list, totals: calcTotals(list) };
-  }),[periods, entries, mode, etF]);
-
-  const getLabel = p =>
-    mode==='month' ? (p.ym   ? monthLabel(p.ym)   : `Zeitraum ${p.id.toUpperCase()}`) :
-    mode==='year'  ? (p.year ? p.year              : `Jahr ${p.id.toUpperCase()}`)     :
-                     `Zeitraum ${p.id.toUpperCase()}`;
-
-  const hasData = periodData.some(pd=>pd.list.length>0);
-
-  const addPeriod = () => {
-    if (periods.length>=6) return;
-    const letters='abcdefghijklmnopqrstuvwxyz';
-    const nextId = letters[periods.length];
-    setPeriods(p=>[...p,{id:nextId,ym:'',year:'',from:daysAgo(180+periods.length*60),to:daysAgo(121+periods.length*60)}]);
-  };
-  const removePeriod = id => { if (periods.length<=2) return; setPeriods(p=>p.filter(pd=>pd.id!==id)); };
-  const updatePeriod = (id,key,val) => setPeriods(p=>p.map(pd=>pd.id===id?{...pd,[key]:val}:pd));
-
-  const compId = `cmp-${mode}-${periods.map(p=>p.ym+p.year+p.from+p.to).join('|')}-${etF}`;
-  const inp = "bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-200";
-
-  const compData = hasData ? {
-    labels: METRICS.map(m=>m.label),
-    datasets: periodData.map((pd,i)=>({
-      label: getLabel(pd),
-      data: METRICS.map(m=>pd.totals[m.key]),
-      backgroundColor: PERIOD_PALETTE[i%PERIOD_PALETTE.length]+'bb',
-      borderRadius: 4,
-    })),
-  } : null;
-
-  return (
-    <div className="space-y-5 up">
-      <div>
-        <h1 className="text-xl font-bold grad">Zeitraum-Vergleich</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Mehrere Zeitr&auml;ume gleichzeitig vergleichen</p>
-      </div>
-
-      {/* Controls */}
-      <div className="glass rounded-2xl p-5 space-y-4">
-        <div className="flex gap-2 flex-wrap items-center">
-          {[['month','Nach Monat'],['year','Nach Jahr'],['custom','Benutzerdefiniert']].map(([v,l])=>(
-            <button key={v} onClick={()=>setMode(v)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${mode===v?'bg-violet-600 text-white':'bg-white/5 text-slate-400 hover:bg-white/10'}`}>
-              {l}
-            </button>
-          ))}
-          <div className="ml-auto">
-            <select value={etF} onChange={e=>setEtF(e.target.value)} className={inp+" text-xs py-1.5"}>
-              <option value="all">Alle Event-Typen</option>
-              {eventTypes.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
-        </div>
-
-        {/* Period cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {periods.map((p,i)=>{
-            const col = PERIOD_PALETTE[i%PERIOD_PALETTE.length];
-            return (
-              <div key={p.id} className="p-3 rounded-xl" style={{border:`1px solid ${col}44`,background:`${col}11`}}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold" style={{color:col}}>Zeitraum {p.id.toUpperCase()}</span>
-                  {periods.length>2 && (
-                    <button onClick={()=>removePeriod(p.id)} className="text-slate-600 hover:text-red-400 transition-all ml-2">
-                      <SI p={IC.x} size={12}/>
-                    </button>
-                  )}
-                </div>
-                {mode==='month' && (
-                  <select value={p.ym} onChange={e=>updatePeriod(p.id,'ym',e.target.value)} className={inp+" w-full"}>
-                    <option value="">&mdash; Monat w&auml;hlen &mdash;</option>
-                    {availYM.map(ym=><option key={ym} value={ym}>{monthLabel(ym)}</option>)}
-                  </select>
-                )}
-                {mode==='year' && (
-                  <select value={p.year} onChange={e=>updatePeriod(p.id,'year',e.target.value)} className={inp+" w-full"}>
-                    <option value="">&mdash; Jahr w&auml;hlen &mdash;</option>
-                    {availYears.map(y=><option key={y} value={y}>{y}</option>)}
-                  </select>
-                )}
-                {mode==='custom' && (
-                  <div className="flex gap-2 items-center">
-                    <input type="date" value={p.from} onChange={e=>updatePeriod(p.id,'from',e.target.value)} className={inp+" flex-1"}/>
-                    <span className="text-slate-600 text-xs">-</span>
-                    <input type="date" value={p.to} onChange={e=>updatePeriod(p.id,'to',e.target.value)} className={inp+" flex-1"}/>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {periods.length<6 && (
-          <button onClick={addPeriod}
-            className="flex items-center gap-2 text-slate-500 hover:text-violet-400 text-xs font-medium transition-all px-3 py-2 rounded-xl hover:bg-white/5 border border-dashed border-white/10 hover:border-violet-500/30 w-full justify-center">
-            <SI p={IC.plus} size={13}/>
-            Weiteren Zeitraum hinzuf&uuml;gen
-          </button>
-        )}
-      </div>
-
-      {hasData ? (
-        <>
-          {/* Summary table */}
-          <div className="glass rounded-2xl p-5 glow overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-                  <th className="text-left pb-3 text-slate-500 text-xs font-medium pr-3">Metrik</th>
-                  {periodData.map((pd,i)=>(
-                    <th key={pd.id} className="text-right pb-3 font-semibold text-xs whitespace-nowrap px-2"
-                      style={{color:PERIOD_PALETTE[i%PERIOD_PALETTE.length]}}>
-                      {getLabel(pd)}<br/>
-                      <span className="text-slate-600 font-normal">({pd.list.length} Events)</span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {METRICS.map(m=>(
-                  <tr key={m.key} style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
-                    <td className="py-3 pr-3">
-                      <div className="flex items-center gap-2">
-                        <span className="dot" style={{background:m.color}}/>
-                        <span className="text-slate-300 font-medium whitespace-nowrap">{m.label}</span>
-                      </div>
-                    </td>
-                    {periodData.map((pd,i)=>(
-                      <td key={pd.id} className="py-3 text-right text-xl font-bold px-2"
-                        style={{color:PERIOD_PALETTE[i%PERIOD_PALETTE.length]+'dd'}}>
-                        {pd.totals[m.key]}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Grouped bar chart */}
-          {compData && (
-            <ChartCard title="Vergleich gesamt &mdash; alle Metriken">
-              <ChartCanvas id={compId} type="bar" data={compData} options={mkCfg()} h={200}/>
-            </ChartCard>
-          )}
-
-          {/* Per-metric bar charts */}
-          <div className="grid grid-cols-2 gap-4">
-            {METRICS.map(m=>{
-              const mData = hasData ? {
-                labels: periodData.map((_,i)=>`Zeitraum ${periods[i].id.toUpperCase()}`),
-                datasets:[{
-                  label: m.label,
-                  data: periodData.map(pd=>pd.totals[m.key]),
-                  backgroundColor: periodData.map((_,i)=>PERIOD_PALETTE[i%PERIOD_PALETTE.length]+'cc'),
-                  borderRadius: 4,
-                }],
-              } : null;
-              return mData ? (
-                <ChartCard key={m.key} title={m.label}>
-                  <ChartCanvas id={`cmp-m-${m.key}-${compId}`} type="bar" data={mData}
-                    options={mkCfg({plugins:{legend:{display:false}}})} h={130}/>
-                </ChartCard>
-              ) : null;
-            })}
-          </div>
-
-          {/* Avg per event */}
-          {periodData.filter(pd=>pd.list.length>0).length>=2 && (
-            <div className="glass rounded-2xl p-5 glow overflow-x-auto">
-              <h3 className="font-semibold text-slate-200 text-sm mb-4">Durchschnitt pro Event</h3>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-                    <th className="text-left pb-3 text-slate-500 text-xs font-medium pr-3">Metrik</th>
-                    {periodData.map((pd,i)=>(
-                      <th key={pd.id} className="text-right pb-3 text-xs font-medium px-2 whitespace-nowrap"
-                        style={{color:PERIOD_PALETTE[i%PERIOD_PALETTE.length]}}>
-                        {getLabel(pd)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {METRICS.map(m=>(
-                    <tr key={m.key} style={{borderTop:'1px solid rgba(255,255,255,0.04)'}}>
-                      <td className="py-2.5 pr-3">
-                        <div className="flex items-center gap-2">
-                          <span className="dot" style={{background:m.color}}/>
-                          <span className="text-slate-300 whitespace-nowrap">{m.label}</span>
-                        </div>
-                      </td>
-                      {periodData.map(pd=>(
-                        <td key={pd.id} className="py-2.5 text-right text-slate-200 font-semibold px-2">
-                          {pd.list.length ? (pd.totals[m.key]/pd.list.length).toFixed(1) : <span className="text-slate-700">&mdash;</span>}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="glass rounded-2xl py-16 text-center">
-          <div className="text-slate-400 font-medium mb-1">Zeitr&auml;ume ausw&auml;hlen</div>
-          <div className="text-slate-600 text-sm">W&auml;hle oben Zeitr&auml;ume zum Vergleichen aus</div>
-        </div>
-      )}
+    <div class="login-title">Willkommen zur√ºck</div>
+    <div class="login-sub">Gib deinen Admin-PIN ein, um fortzufahren.</div>
+    <div class="form-group">
+      <label class="field-label">Admin-PIN</label>
+      <input type="password" id="login-pin" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢"
+        style="letter-spacing:6px;font-size:20px;text-align:center"
+        oninput="if(this.value.length===4)doLogin()"
+        onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-  );
-};
-
-// ‚îÄ‚îÄ Eintrag-Formular ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const EntryForm = ({ onSave, initialData, onCancel, eventTypes }) => {
-  const [form, setForm] = useState({
-    date: today(), dateTo: '', event: '', eventTypeId: '',
-    besucher: '', erstbesucher: '', entscheidungen: '', taufen: '',
-    notes: '', ...initialData,
-  });
-  const set = (k,v) => setForm(p=>({...p,[k]:v}));
-
-  const selectedType  = eventTypes.find(t=>t.id===form.eventTypeId);
-  const isRangeType   = selectedType?.isRange;
-
-  const handleSubmit = e => {
-    e.preventDefault();
-    if (!form.date) return;
-    onSave({
-      ...form,
-      dateTo: isRangeType ? (form.dateTo||form.date) : '',
-      besucher:       Number(form.besucher)||0,
-      erstbesucher:   Number(form.erstbesucher)||0,
-      entscheidungen: Number(form.entscheidungen)||0,
-      taufen:         Number(form.taufen)||0,
-    });
-  };
-
-  const inp = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 transition-all text-sm";
-
-  return (
-    <div className="up max-w-2xl">
-      <div className="mb-5">
-        <h1 className="text-xl font-bold grad">{initialData?'Eintrag bearbeiten':'Neuer Eintrag'}</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Zahlen f&uuml;r ein Event erfassen</p>
-      </div>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="glass rounded-2xl p-5 glow space-y-4">
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Event-Details</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-slate-400 text-xs mb-1.5">{isRangeType ? 'Startdatum *' : 'Datum *'}</label>
-              <input type="date" value={form.date} onChange={e=>set('date',e.target.value)} className={inp} required/>
-            </div>
-            {isRangeType && (
-              <div>
-                <label className="block text-slate-400 text-xs mb-1.5">Enddatum</label>
-                <input type="date" value={form.dateTo} min={form.date}
-                  onChange={e=>set('dateTo',e.target.value)} className={inp}/>
-              </div>
-            )}
-            <div>
-              <label className="block text-slate-400 text-xs mb-1.5">Event-Name</label>
-              <input type="text" value={form.event} onChange={e=>set('event',e.target.value)}
-                placeholder="z. B. Sonntagsgottesdienst" className={inp}/>
-            </div>
-          </div>
-          <div>
-            <label className="block text-slate-400 text-xs mb-1.5">Event-Typ</label>
-            <select value={form.eventTypeId} onChange={e=>set('eventTypeId',e.target.value)}
-              className={inp}
-              style={selectedType?{borderColor:selectedType.color+'60',color:selectedType.color}:{}}>
-              <option value="">&mdash; Kein Typ &mdash;</option>
-              {eventTypes.map(t=>(
-                <option key={t.id} value={t.id}>{t.name}{t.isRange?' (Zeitraum)':''}</option>
-              ))}
-            </select>
-            {isRangeType && (
-              <p className="text-amber-500/70 text-xs mt-1.5 flex items-center gap-1">
-                <SI p={IC.calendar} size={11}/> Zeitraum-Event: Gib optional ein Enddatum an
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="glass rounded-2xl p-5 glow">
-          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-4">Zahlen</p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {METRICS.map(m=>(
-              <div key={m.key}>
-                <label className="flex items-center gap-1.5 text-xs font-semibold mb-1.5" style={{color:m.color}}>
-                  <span className="dot" style={{background:m.color}}/>{m.label}
-                </label>
-                <input type="number" min="0" value={form[m.key]}
-                  onChange={e=>set(m.key,e.target.value)} placeholder="0"
-                  className={inp} style={form[m.key]?{borderColor:m.color+'55'}:{}}/>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="glass rounded-2xl p-5 glow">
-          <label className="block text-slate-400 text-xs mb-1.5">Notizen</label>
-          <textarea value={form.notes} onChange={e=>set('notes',e.target.value)}
-            placeholder="Thema, Gastredner, Besonderheiten \u2026" rows={3} className={inp+" resize-none"}/>
-        </div>
-
-        <div className="flex gap-3">
-          <button type="submit"
-            className="flex-1 bg-violet-600 hover:bg-violet-500 active:scale-[0.98] text-white font-semibold py-3 px-6 rounded-xl transition-all text-sm">
-            {initialData ? '\u00c4nderungen speichern' : 'Eintrag hinzuf\u00fcgen'}
-          </button>
-          {onCancel && (
-            <button type="button" onClick={onCancel}
-              className="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 transition-all text-sm">
-              Abbrechen
-            </button>
-          )}
-        </div>
-      </form>
-    </div>
-  );
-};
-
-// ‚îÄ‚îÄ Eintrags-Liste ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const EntryList = ({ entries, eventTypes, onEdit, onDelete, onAdd }) => {
-  const [search,  setSearch]  = useState('');
-  const [desc,    setDesc]    = useState(true);
-  const [confirm, setConfirm] = useState(null);
-  const [fromF,   setFromF]   = useState('');
-  const [toF,     setToF]     = useState('');
-  const [etF,     setEtF]     = useState('all');
-  const [openNote,setOpenNote]= useState(null);
-
-  const filtered = useMemo(()=>{
-    let list = [...entries];
-    if (search) { const q=search.toLowerCase(); list=list.filter(e=>(e.event||'').toLowerCase().includes(q)||e.date.includes(q)||(e.notes||'').toLowerCase().includes(q)); }
-    if (fromF) list=list.filter(e=>e.date>=fromF);
-    if (toF)   list=list.filter(e=>e.date<=toF);
-    if (etF!=='all') list=list.filter(e=>e.eventTypeId===etF);
-    return list.sort((a,b)=>desc?b.date.localeCompare(a.date):a.date.localeCompare(b.date));
-  },[entries,search,desc,fromF,toF,etF]);
-
-  const del = id => {
-    if (confirm===id) { onDelete(id); setConfirm(null); }
-    else { setConfirm(id); setTimeout(()=>setConfirm(c=>c===id?null:c),3000); }
-  };
-
-  const inp = "bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-slate-200";
-
-  return (
-    <div className="up space-y-4">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-bold grad">Eintr&auml;ge</h1>
-          <p className="text-slate-500 text-sm mt-0.5">{entries.length} gesamt - {filtered.length} angezeigt</p>
-        </div>
-        {onAdd && (
-          <button onClick={onAdd}
-            className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all">
-            <SI p={IC.plus} size={13}/> Neu
-          </button>
-        )}
-      </div>
-
-      <div className="glass rounded-2xl p-4 space-y-3">
-        <div className="flex gap-2 flex-wrap">
-          <input type="text" value={search} onChange={e=>setSearch(e.target.value)}
-            placeholder="Suchen \u2026" className={inp+" flex-1 min-w-[130px]"}/>
-          <select value={etF} onChange={e=>setEtF(e.target.value)} className={inp}>
-            <option value="all">Alle Typen</option>
-            {eventTypes.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
-          <button onClick={()=>setDesc(p=>!p)}
-            className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-400 hover:bg-white/10 transition-all whitespace-nowrap">
-            {desc?'Neueste zuerst':'\u00c4lteste zuerst'}
-          </button>
-        </div>
-        <div className="flex gap-2 items-center flex-wrap">
-          <span className="text-slate-600 text-xs">Zeitraum:</span>
-          <input type="date" value={fromF} onChange={e=>setFromF(e.target.value)} className={inp+" text-xs py-1.5"}/>
-          <span className="text-slate-600 text-xs">-</span>
-          <input type="date" value={toF} onChange={e=>setToF(e.target.value)} className={inp+" text-xs py-1.5"}/>
-          {(fromF||toF)&&<button onClick={()=>{setFromF('');setToF('');}} className="text-xs text-violet-400 hover:text-violet-300">x Zur&uuml;cksetzen</button>}
-        </div>
-      </div>
-
-      {filtered.length===0 ? (
-        <div className="glass rounded-2xl py-16 text-center">
-          <div className="text-slate-400 font-medium mb-1">Keine Eintr&auml;ge gefunden</div>
-          {entries.length===0&&onAdd&&<button onClick={onAdd} className="mt-3 text-violet-400 hover:text-violet-300 text-sm">Ersten Eintrag erstellen</button>}
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map(e=>{
-            const et = eventTypes.find(t=>t.id===e.eventTypeId);
-            return (
-              <div key={e.id} className="glass glass-hover rounded-2xl p-4 transition-all">
-                <div className="flex items-start gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <span className="font-semibold text-slate-200 text-sm">{fmtRange(e.date, e.dateTo)}</span>
-                      {e.event&&<span className="text-xs text-slate-300 font-medium">{e.event}</span>}
-                      {et&&<span className="pill" style={{background:et.color+'22',color:et.color}}>{et.name}</span>}
-                      {et?.isRange&&e.dateTo&&e.dateTo!==e.date&&(
-                        <span className="pill" style={{background:'rgba(245,158,11,0.15)',color:'#f59e0b'}}>Zeitraum</span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-4">
-                      {METRICS.map(m=>(
-                        <div key={m.key} className="flex items-center gap-1.5">
-                          <span className="dot" style={{background:m.color,width:7,height:7}}/>
-                          <span className="font-bold text-sm" style={{color:m.color}}>{Number(e[m.key])||0}</span>
-                          <span className="text-slate-600 text-xs">{m.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {e.notes&&(
-                      <button onClick={()=>setOpenNote(openNote===e.id?null:e.id)}
-                        className="mt-1.5 text-slate-600 hover:text-slate-400 text-xs text-left transition-all">
-                        {openNote===e.id?e.notes:`${e.notes.slice(0,60)}${e.notes.length>60?'\u2026':''}`}
-                      </button>
-                    )}
-                  </div>
-                  {(onEdit||onDelete) && (
-                    <div className="flex gap-1.5 flex-shrink-0">
-                      {onEdit && (
-                        <button onClick={()=>onEdit(e)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 hover:bg-blue-900/30 text-slate-500 hover:text-blue-400 transition-all">
-                          <SI p={IC.edit} size={13}/>
-                        </button>
-                      )}
-                      {onDelete && (
-                        <button onClick={()=>del(e.id)}
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${confirm===e.id?'bg-red-900/40 text-red-400':'bg-white/5 hover:bg-red-900/25 text-slate-500 hover:text-red-400'}`}
-                          title={confirm===e.id?'Nochmal klicken zum L\u00f6schen':'L\u00f6schen'}>
-                          <SI p={confirm===e.id?IC.warn:IC.trash} size={13}/>
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ‚îÄ‚îÄ Event-Typ-Verwaltung ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const SWATCH_COLORS = [
-  '#6366f1','#8b5cf6','#a855f7','#ec4899',
-  '#ef4444','#f97316','#f59e0b','#eab308',
-  '#10b981','#14b8a6','#06b6d4','#3b82f6',
-];
-
-const ColorPicker = ({ value, onChange }) => (
-  <div className="space-y-2">
-    <div className="flex flex-wrap gap-1.5">
-      {SWATCH_COLORS.map(c=>(
-        <button key={c} type="button" onClick={()=>onChange(c)}
-          className="w-6 h-6 rounded-full flex-shrink-0 transition-all hover:scale-110"
-          style={{
-            background: c,
-            outline: value===c ? `2px solid ${c}` : '2px solid transparent',
-            outlineOffset: '2px',
-          }}/>
-      ))}
-      <label className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center bg-white/10 border border-white/20 cursor-pointer hover:bg-white/20 transition-all relative overflow-hidden"
-        title="Eigene Farbe">
-        <span className="text-slate-400 text-xs leading-none select-none">+</span>
-        <input type="color" value={value} onChange={e=>onChange(e.target.value)}
-          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"/>
-      </label>
-    </div>
-    <div className="flex items-center gap-2">
-      <span className="w-4 h-4 rounded flex-shrink-0" style={{background:value}}/>
-      <span className="text-slate-500 text-xs font-mono">{value}</span>
-    </div>
+    <button class="btn btn-acc" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">Einloggen</button>
+    <div id="login-err" style="display:none;margin-top:10px;text-align:center;font-size:12px;color:var(--dan)">Falscher PIN. Bitte erneut versuchen.</div>
   </div>
-);
+</div>
 
-const EventTypeManager = ({ eventTypes, setEventTypes, entries }) => {
-  const [name,      setName]      = useState('');
-  const [color,     setColor]     = useState('#8b5cf6');
-  const [isRange,   setIsRange]   = useState(false);
-  const [editId,    setEditId]    = useState(null);
-  const [editName,  setEditName]  = useState('');
-  const [editColor, setEditColor] = useState('');
-  const [editRange, setEditRange] = useState(false);
+<!-- APP -->
+<div id="app" style="display:none">
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">R3</div>
+      <div class="nav-logo-name">Dienstplan</div>
+    </div>
+    <div class="nav-tabs" id="nav-tabs"></div>
+    <div class="nav-sep"></div>
+    <div class="nav-right" id="nav-right"></div>
+  </nav>
+  <!-- PAGE -->
+  <div class="content" id="page-content"></div>
+</div>
 
-  const uses = id => entries.filter(e=>e.eventTypeId===id).length;
+<!-- MODAL -->
+<div id="mo" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div id="mc" class="modal"></div>
+</div>
+<div class="toast-wrap" id="tc"></div>
 
-  const add = () => {
-    if (!name.trim()) return;
-    setEventTypes(p=>[...p,{id:genId(),name:name.trim(),color,isRange}]);
-    setName(''); setColor('#8b5cf6'); setIsRange(false);
+<script>
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   DATA
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+const DBKEY='r3dp4', SESSKEY='r3s4';
+let db={}, authed=false;
+
+function defaultDB(){
+  return {
+    meta:{adminPin:'1234'},
+    persons:[],
+    groups:[
+      {id:'g1',name:'Produktion',color:'#6366f1',dienste:[
+        {id:'d1',name:'Licht'},{id:'d2',name:'MAZ'},{id:'d3',name:'TON'},{id:'d4',name:'PM'},{id:'d5',name:'Stage'}
+      ]},
+      {id:'g2',name:'Cafe',color:'#f59e0b',dienste:[
+        {id:'d6',name:'Cafe-Leitung'},{id:'d7',name:'Cafe'}
+      ]},
+      {id:'g3',name:'People',color:'#10b981',dienste:[
+        {id:'d8',name:'Connectar'},{id:'d9',name:'Schildhalter'},{id:'d10',name:'Begr√º√üung'}
+      ]},
+      {id:'g4',name:'Worship',color:'#ec4899',dienste:[
+        {id:'d11',name:'S√§nger'},{id:'d12',name:'Bass'},{id:'d13',name:'Drums'},
+        {id:'d14',name:'Keys'},{id:'d15',name:'A-Gitarre'},{id:'d16',name:'Guitar'}
+      ]},
+      {id:'g5',name:'Eventleitung',color:'#ef4444',dienste:[
+        {id:'d17',name:'Eventleitung'},{id:'d18',name:'Gastsprecher'}
+      ]}
+    ],
+    templates:[],
+    schichten:[],
+    assignments:[],
+    wishes:[],
+    absences:[]
   };
+}
 
-  const save = id => {
-    setEventTypes(p=>p.map(t=>t.id===id?{...t,name:editName,color:editColor,isRange:editRange}:t));
-    setEditId(null);
+function loadDB(){
+  try{ db=JSON.parse(localStorage.getItem(DBKEY))||defaultDB(); }
+  catch{ db=defaultDB(); }
+  if(!db.meta) db.meta={adminPin:'1234'};
+  if(!db.absences) db.absences=[];
+  if(!db.groups) db.groups=defaultDB().groups;
+  if(!db.templates) db.templates=[];
+}
+function saveDB(){ localStorage.setItem(DBKEY,JSON.stringify(db)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   AUTH
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function init(){
+  loadDB();
+  if(sessionStorage.getItem(SESSKEY)==='1'){ authed=true; showApp(); }
+  else showLogin();
+}
+
+function showLogin(){
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  setTimeout(()=>document.getElementById('login-pin')?.focus(),100);
+}
+
+function doLogin(){
+  const pin=document.getElementById('login-pin').value;
+  const err=document.getElementById('login-err');
+  if(pin===db.meta.adminPin){
+    authed=true;
+    sessionStorage.setItem(SESSKEY,'1');
+    err.style.display='none';
+    showApp();
+  } else {
+    err.style.display='block';
+    document.getElementById('login-pin').value='';
+    document.getElementById('login-pin').focus();
+  }
+}
+
+function logout(){
+  authed=false;
+  sessionStorage.removeItem(SESSKEY);
+  showLogin();
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   APP SHELL
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+let currentView='dienstplan';
+
+const VIEWS=[
+  {id:'dienstplan',label:'Dienstplan'},
+  {id:'personen',label:'Personen'},
+  {id:'gruppen',label:'Gruppen'},
+  {id:'vorlagen',label:'Vorlagen'},
+  {id:'statistik',label:'Statistik'},
+  {id:'einstellungen',label:'Einstellungen'},
+];
+
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  renderNav();
+  showView(currentView);
+}
+
+function renderNav(){
+  document.getElementById('nav-tabs').innerHTML=VIEWS.map(v=>`
+    <button class="nav-tab${currentView===v.id?' active':''}" onclick="showView('${v.id}')">${v.label}</button>
+  `).join('');
+  document.getElementById('nav-right').innerHTML=`
+    <button class="btn btn-ghost btn-sm" onclick="logout()" style="font-size:12px;color:var(--txt3)">Abmelden</button>`;
+}
+
+function showView(v){
+  currentView=v;
+  renderNav();
+  const renders={
+    dienstplan:renderDienstplan,
+    personen:renderPersonen,
+    gruppen:renderGruppen,
+    vorlagen:renderVorlagen,
+    statistik:renderStatistik,
+    einstellungen:renderEinstellungen,
   };
+  (renders[v]||renderDienstplan)();
+}
 
-  const remove = id => {
-    if (uses(id)>0) { alert(`Dieser Typ wird in ${uses(id)} Eintr\u00e4gen verwendet.\nBitte zuerst die betreffenden Eintr\u00e4ge anpassen.`); return; }
-    setEventTypes(p=>p.filter(t=>t.id!==id));
-  };
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: PERSONEN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+let personSearch='';
 
-  const startEdit = t => { setEditId(t.id); setEditName(t.name); setEditColor(t.color); setEditRange(!!t.isRange); };
-
-  const inp = "bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-slate-200 placeholder-slate-600";
-
-  return (
-    <div className="up space-y-5 max-w-xl">
+function renderPersonen(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
       <div>
-        <h1 className="text-xl font-bold grad">Event-Typen</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Kategorien f&uuml;r Events verwalten</p>
+        <div class="page-title">Personen</div>
+        <div class="page-sub">${db.persons.length} Personen angelegt</div>
       </div>
-
-      <div className="glass rounded-2xl p-5 glow space-y-3">
-        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Neuer Typ</p>
-        <div className="flex gap-2">
-          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Name des Event-Typs"
-            className={inp+" flex-1"} onKeyDown={e=>e.key==='Enter'&&add()}/>
-          <button onClick={add}
-            className="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap">
-            Hinzuf&uuml;gen
-          </button>
+      <div class="page-acts">
+        <div class="search-bar">
+          <svg class="search-icon" width="13" height="13" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><line x1="13.5" y1="13.5" x2="18" y2="18"/></svg>
+          <input type="text" placeholder="Suchen‚Ä¶" value="${esc(personSearch)}" oninput="personSearch=this.value;renderPersonsList()">
         </div>
-        <ColorPicker value={color} onChange={setColor}/>
-        <label className="flex items-center gap-3 cursor-pointer">
-          <button type="button" onClick={()=>setIsRange(p=>!p)}
-            className={`toggle ${isRange?'on':''}`}
-            style={{background: isRange?'#f59e0b':'rgba(255,255,255,0.1)'}}/>
-          <span className="text-slate-300 text-sm">Zeitraum-Event</span>
-          <span className="text-slate-500 text-xs">(z. B. Freizeit, Konferenz &uuml;ber mehrere Tage)</span>
-        </label>
-      </div>
-
-      <div className="glass rounded-2xl p-5 glow space-y-2">
-        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-3">Vorhandene Typen</p>
-        {eventTypes.map(t=>(
-          <div key={t.id} className="p-3 rounded-xl bg-white/[0.03] border border-white/6">
-            {editId===t.id ? (
-              <div className="space-y-3">
-                <div className="flex gap-2 items-center">
-                  <input value={editName} onChange={e=>setEditName(e.target.value)}
-                    className={inp+" flex-1 py-1.5"} autoFocus onKeyDown={e=>e.key==='Enter'&&save(t.id)}/>
-                  <button type="button" onClick={()=>setEditRange(p=>!p)}
-                    className={`toggle flex-shrink-0 ${editRange?'on':''}`}
-                    style={{background:editRange?'#f59e0b':'rgba(255,255,255,0.1)'}}
-                    title={editRange?'Zeitraum-Event':'Einzeldatum'}/>
-                  <button onClick={()=>save(t.id)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-900/40 text-emerald-400 hover:bg-emerald-900/60 transition-all">
-                    <SI p={IC.check} size={13}/>
-                  </button>
-                  <button onClick={()=>setEditId(null)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 text-slate-500 hover:bg-white/10 transition-all">
-                    <SI p={IC.x} size={13}/>
-                  </button>
-                </div>
-                <ColorPicker value={editColor} onChange={setEditColor}/>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="dot" style={{width:12,height:12,borderRadius:3,background:t.color,flexShrink:0}}/>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-200 text-sm font-medium">{t.name}</span>
-                    {t.isRange&&<span className="pill" style={{background:'rgba(245,158,11,0.15)',color:'#f59e0b'}}>Zeitraum</span>}
-                  </div>
-                  <span className="text-slate-600 text-xs">{uses(t.id)} Eintr&auml;ge</span>
-                </div>
-                <span className="pill" style={{background:t.color+'22',color:t.color}}>{t.name}</span>
-                <button onClick={()=>startEdit(t)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-blue-900/30 text-slate-500 hover:text-blue-400 transition-all">
-                  <SI p={IC.edit} size={13}/>
-                </button>
-                <button onClick={()=>remove(t.id)}
-                  className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/5 hover:bg-red-900/25 text-slate-500 hover:text-red-400 transition-all">
-                  <SI p={IC.trash} size={13}/>
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+        <button class="btn btn-acc btn-sm" onclick="openPersonModal()">+ Person</button>
       </div>
     </div>
-  );
-};
+    <div id="persons-list"></div>`;
+  renderPersonsList();
+}
 
-// ‚îÄ‚îÄ Sync-Status-Anzeige ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const SyncDot = ({ state }) => {
-  const MAP = {
-    connecting: ['#64748b', 'Verbinden\u2026'],
-    synced:     ['#10b981', 'Synchronisiert'],
-    saving:     ['#f59e0b', 'Speichern\u2026'],
-    error:      ['#ef4444', 'Offline'],
-  };
-  const [col, label] = MAP[state] || MAP.connecting;
-  return (
-    <div className="flex items-center gap-1.5 flex-shrink-0" title={label}>
-      <span style={{
-        width:7, height:7, borderRadius:'50%', background:col, display:'inline-block',
-        boxShadow: state==='synced' ? `0 0 5px ${col}99` : 'none',
-        animation: state==='saving' ? 'pulse 1s infinite' : 'none',
-      }}/>
+function renderPersonsList(){
+  const q=personSearch.toLowerCase();
+  const filtered=db.persons.filter(p=>!q||p.name.toLowerCase().includes(q)||(p.role||'').toLowerCase().includes(q));
+  const el=document.getElementById('persons-list');
+  if(!el) return;
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">üë§</div><div class="empty-title">${personSearch?'Keine Treffer':'Noch keine Personen'}</div><div class="empty-sub">${personSearch?'Anderen Suchbegriff versuchen.':'Lege die erste Person an.'}</div></div>`;
+    return;
+  }
+  el.innerHTML=`<div class="persons-grid">${filtered.map(renderPersonCard).join('')}</div>`;
+}
+
+function renderPersonCard(p){
+  const quals=(p.qualifications||[]).map(did=>{
+    for(const g of db.groups) for(const d of(g.dienste||[])) if(d.id===did) return `<span class="tag" style="background:${g.color}22;color:${g.color}">${esc(d.name)}</span>`;
+    return '';
+  }).join('');
+  return `<div class="person-card" onclick="openPersonModal('${p.id}')">
+    <div class="av av-lg" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+    <div style="flex:1;min-width:0">
+      <div class="pc-name">${esc(p.name)}</div>
+      <div class="pc-role">${esc(p.role||'Mitarbeiter')}${p.email?` ¬∑ <span style="font-size:10px">${esc(p.email)}</span>`:''}</div>
+      ${quals?`<div class="pc-tags">${quals}</div>`:''}
     </div>
-  );
-};
+  </div>`;
+}
 
-// ‚îÄ‚îÄ Login-Screen ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const ADMIN_PW = '0207';
-
-const LoginScreen = ({ onLogin }) => {
-  const [pw, setPw] = useState('');
-  const [err, setErr] = useState(false);
-  const [showPw, setShowPw] = useState(false);
-
-  const tryAdmin = () => {
-    if (pw === ADMIN_PW) { setErr(false); onLogin('admin'); }
-    else { setErr(true); setPw(''); }
-  };
-
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm space-y-6 up">
-        <div className="text-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-2xl mx-auto mb-4"
-            style={{background:'linear-gradient(135deg,#8b5cf6,#ec4899)'}}>R</div>
-          <div className="text-white font-bold text-xl">REVIVE</div>
-          <div className="text-slate-500 text-sm">Youth Stats</div>
+function openPersonModal(id){
+  const p=id?db.persons.find(x=>x.id===id):null;
+  const qualCbs=db.groups.map(g=>`
+    <div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:800;color:${g.color};text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px">${esc(g.name)}</div>
+      ${(g.dienste||[]).map(d=>`
+        <div class="check-row">
+          <input type="checkbox" id="q_${d.id}" ${(p?.qualifications||[]).includes(d.id)?'checked':''}>
+          <label for="q_${d.id}">${esc(d.name)}</label>
+        </div>`).join('')}
+    </div>`).join('');
+  const cc=p?.color||'#6366f1';
+  const PAL=['#6366f1','#8b5cf6','#a855f7','#ec4899','#e11d48','#ef4444','#f97316','#f59e0b','#eab308','#84cc16','#10b981','#14b8a6','#06b6d4','#3b82f6','#0ea5e9','#475569'];
+  window._pc=cc;
+  openModal(`
+    <div class="modal-header"><h3>${p?'Person bearbeiten':'Neue Person'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Name</label><input id="pm-name" value="${esc(p?.name||'')}"></div>
+      <div class="form-group"><label class="field-label">Farbe</label>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;padding:10px;border:1px solid var(--brd);border-radius:var(--r);background:var(--bg3)">
+          ${PAL.map(c=>`<div class="swatch${c===cc?' sel':''}" id="sw_${c.slice(1)}" style="background:${c}" onclick="pickColor('${c}')"></div>`).join('')}
         </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+          <div id="pm-cprev" style="width:26px;height:26px;border-radius:6px;background:${cc};border:1px solid var(--brd);flex-shrink:0"></div>
+          <span id="pm-cval" style="font-size:12px;font-family:monospace;color:var(--txt2)">${cc}</span>
+          <input type="color" id="pm-cust" value="${cc}" style="width:30px;height:26px" onchange="pickColor(this.value)" title="Eigene Farbe">
+        </div>
+      </div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Rolle</label>
+          <select id="pm-role">${['Mitarbeiter','Assistenz','Trainee','Leiter'].map(r=>`<option${(p?.role||'Mitarbeiter')===r?' selected':''}>${r}</option>`).join('')}</select>
+        </div>
+        <div class="form-group"><label class="field-label">E-Mail</label><input id="pm-email" type="email" value="${esc(p?.email||'')}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Notizen</label><textarea id="pm-notes" rows="2">${esc(p?.notes||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">Qualifikationen</label>
+        <div style="max-height:200px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r);padding:10px;background:var(--bg3)">${qualCbs}</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${p?`<button class="btn btn-dan-ghost btn-sm" onclick="deletePerson('${id}')">L√∂schen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="savePerson('${id||''}')">Speichern</button>
+    </div>`);
+  document.getElementById('pm-name').focus();
+}
 
-        <div className="glass rounded-2xl p-6 glow space-y-3">
-          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider text-center mb-4">Anmelden als</p>
+function pickColor(c){
+  window._pc=c;
+  document.querySelectorAll('.swatch').forEach(el=>el.classList.remove('sel'));
+  const sw=document.getElementById('sw_'+c.slice(1));
+  if(sw) sw.classList.add('sel');
+  const pv=document.getElementById('pm-cprev'); if(pv) pv.style.background=c;
+  const cv=document.getElementById('pm-cval'); if(cv) cv.textContent=c;
+  const ci=document.getElementById('pm-cust'); if(ci) ci.value=c;
+}
 
-          <button onClick={()=>onLogin('viewer')}
-            className="w-full py-3 rounded-xl text-sm font-semibold transition-all bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 hover:border-white/20">
-            Viewer &mdash; nur lesen
-          </button>
+function savePerson(id){
+  const name=document.getElementById('pm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const quals=[...document.querySelectorAll('[id^="q_"]:checked')].map(el=>el.id.slice(2));
+  const data={name,color:window._pc||'#6366f1',role:document.getElementById('pm-role').value,
+    email:document.getElementById('pm-email').value.trim(),
+    notes:document.getElementById('pm-notes').value.trim(),qualifications:quals};
+  if(id){ Object.assign(db.persons.find(x=>x.id===id),data); }
+  else { db.persons.push({id:uid(),...data}); }
+  saveDB(); closeModal(); renderPersonsList(); toast('Gespeichert','ok');
+  document.querySelector('.page-sub').textContent=`${db.persons.length} Personen angelegt`;
+}
 
-          <div className="space-y-2">
-            <div className="relative">
-              <input
-                type="text"
-                value={pw} onChange={e=>{setPw(e.target.value);setErr(false);}}
-                onKeyDown={e=>e.key==='Enter'&&tryAdmin()}
-                placeholder="Admin-Passwort"
-                autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck="false"
-                className={`w-full bg-white/5 border rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 text-sm pr-12 ${err?'border-red-500/60':'border-white/10'}`}
-                style={{WebkitTextSecurity: showPw ? 'none' : 'disc', letterSpacing: showPw ? 'normal' : '0.15em'}}
-                autoFocus
-              />
-              <button type="button" onClick={()=>setShowPw(p=>!p)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1">
-                <SI p={showPw ? "M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24M1 1l22 22" : "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 100 6 3 3 0 000-6z"} size={15}/>
-              </button>
-            </div>
-            {err && <p className="text-red-400 text-xs px-1">Falsches Passwort</p>}
-            <button onClick={tryAdmin}
-              className="w-full py-3 rounded-xl text-sm font-semibold transition-all text-white"
-              style={{background:'linear-gradient(135deg,#8b5cf6,#ec4899)'}}>
-              Als Admin anmelden
-            </button>
-          </div>
+function deletePerson(id){
+  if(!confirm('Person wirklich l√∂schen?')) return;
+  db.persons=db.persons.filter(x=>x.id!==id);
+  db.assignments=db.assignments.filter(x=>x.personId!==id);
+  db.wishes=db.wishes.filter(x=>x.personId!==id);
+  db.absences=db.absences.filter(x=>x.personId!==id);
+  saveDB(); closeModal(); renderPersonen(); toast('Gel√∂scht');
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: GRUPPEN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function renderGruppen(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
+      <div><div class="page-title">Gruppen & Dienste</div><div class="page-sub">Strukturiere dein Team</div></div>
+      <div class="page-acts"><button class="btn btn-acc btn-sm" onclick="openGroupModal()">+ Gruppe</button></div>
+    </div>
+    <div id="groups-list"></div>`;
+  renderGroupsList();
+}
+
+function renderGroupsList(){
+  const el=document.getElementById('groups-list');
+  if(!el) return;
+  if(!db.groups.length){ el.innerHTML='<div class="empty"><div class="empty-icon">üìã</div><div class="empty-title">Keine Gruppen</div></div>'; return; }
+  el.innerHTML=db.groups.map(g=>`
+    <div class="group-card">
+      <div class="group-hd">
+        <div class="group-color-bar" style="background:${g.color}"></div>
+        <span style="font-size:13px;font-weight:700;flex:1;color:var(--txt)">${esc(g.name)}</span>
+        <span style="font-size:11px;color:var(--txt3);margin-right:8px">${(g.dienste||[]).length} Dienste</span>
+        <button class="btn btn-ghost btn-xs" onclick="openGroupModal('${g.id}')">Bearbeiten</button>
+        <button class="btn btn-ghost btn-xs" onclick="addDienstToGroup('${g.id}')">+ Dienst</button>
+      </div>
+      ${(g.dienste||[]).map(d=>`
+        <div class="dienst-row">
+          <span style="font-size:13px;color:var(--txt)">${esc(d.name)}</span>
+          <button class="btn btn-dan-ghost btn-xs" onclick="deleteDienst('${g.id}','${d.id}')">Entfernen</button>
+        </div>`).join('')}
+      ${!(g.dienste||[]).length?'<div style="padding:10px 16px;font-size:12px;color:var(--txt3)">Keine Dienste</div>':''}
+    </div>`).join('');
+}
+
+function openGroupModal(id){
+  const g=id?db.groups.find(x=>x.id===id):null;
+  openModal(`
+    <div class="modal-header"><h3>${g?'Gruppe bearbeiten':'Neue Gruppe'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Name</label><input id="gm-name" value="${esc(g?.name||'')}"></div>
+        <div class="form-group"><label class="field-label">Farbe</label><input type="color" id="gm-color" value="${g?.color||'#6366f1'}"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${g?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteGroup('${id}')">L√∂schen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveGroup('${id||''}')">Speichern</button>
+    </div>`);
+}
+
+function saveGroup(id){
+  const name=document.getElementById('gm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const color=document.getElementById('gm-color').value;
+  if(id){ Object.assign(db.groups.find(x=>x.id===id),{name,color}); }
+  else { db.groups.push({id:uid(),name,color,dienste:[]}); }
+  saveDB(); closeModal(); renderGroupsList(); toast('Gespeichert','ok');
+}
+
+function deleteGroup(id){
+  if(!confirm('Gruppe l√∂schen?')) return;
+  db.groups=db.groups.filter(x=>x.id!==id);
+  saveDB(); closeModal(); renderGroupsList();
+}
+
+function addDienstToGroup(gid){
+  const name=prompt('Name des neuen Dienstes:');
+  if(!name?.trim()) return;
+  const g=db.groups.find(x=>x.id===gid);
+  if(!g) return;
+  if(!g.dienste) g.dienste=[];
+  g.dienste.push({id:uid(),name:name.trim()});
+  saveDB(); renderGroupsList(); toast('Dienst hinzugef√ºgt','ok');
+}
+
+function deleteDienst(gid,did){
+  const g=db.groups.find(x=>x.id===gid);
+  if(!g) return;
+  g.dienste=(g.dienste||[]).filter(d=>d.id!==did);
+  saveDB(); renderGroupsList();
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: VORLAGEN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function renderVorlagen(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
+      <div><div class="page-title">Vorlagen</div><div class="page-sub">Wiederverwendbare Schicht-Strukturen</div></div>
+      <div class="page-acts"><button class="btn btn-acc btn-sm" onclick="openTemplateModal()">+ Vorlage</button></div>
+    </div>
+    <div id="vorl-list"></div>`;
+  renderVorlList();
+}
+
+function renderVorlList(){
+  const el=document.getElementById('vorl-list');
+  if(!el) return;
+  if(!db.templates.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">üìÑ</div><div class="empty-title">Keine Vorlagen</div><div class="empty-sub">Erstelle Vorlagen f√ºr wiederkehrende Events.</div></div>';
+    return;
+  }
+  el.innerHTML=`<div class="vorl-grid">${db.templates.map(t=>`
+    <div class="vorl-card">
+      <div style="font-size:14px;font-weight:700;color:var(--txt);margin-bottom:4px">${esc(t.name)}</div>
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:12px">${t.timeStart||''}${t.timeEnd?' ‚Äì '+t.timeEnd:''} &middot; ${(t.slots||[]).length} Slots</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-acc btn-xs" onclick="useTemplate('${t.id}')">Verwenden</button>
+        <button class="btn btn-ghost btn-xs" onclick="openTemplateModal('${t.id}')">Bearbeiten</button>
+        <button class="btn btn-dan-ghost btn-xs" onclick="deleteTemplate('${t.id}')">L√∂schen</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function openTemplateModal(id){
+  const t=id?db.templates.find(x=>x.id===id):null;
+  const slotOpts=buildSlotOptions();
+  const slotRows=(t?.slots||[]).map(sl=>`
+    <div class="dienst-row" id="tsl_${sl.id}">
+      <span style="font-size:12px;font-weight:600;color:var(--txt)">${getGroupName(sl.groupId)} / ${getDienstName(sl.dienstId)}</span>
+      <button class="btn btn-dan-ghost btn-xs" onclick="removeTSlot('${sl.id}')">&#215;</button>
+    </div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>${t?'Vorlage bearbeiten':'Neue Vorlage'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Name</label><input id="tm-name" value="${esc(t?.name||'')}"></div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Start</label><input type="time" id="tm-start" value="${t?.timeStart||''}"></div>
+        <div class="form-group"><label class="field-label">Ende</label><input type="time" id="tm-end" value="${t?.timeEnd||''}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Slots</label>
+        <div id="tm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px;background:var(--bg3)">${slotRows||'<div style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
+        <div style="display:flex;gap:8px">
+          <select id="tm-slot-sel" style="flex:1">${slotOpts}</select>
+          <button class="btn btn-sec btn-sm" onclick="addTSlot()">Hinzuf√ºgen</button>
         </div>
       </div>
     </div>
-  );
-};
+    <div class="modal-footer">
+      ${t?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteTemplate('${id}');closeModal()">L√∂schen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveTemplate('${id||''}')">Speichern</button>
+    </div>`,'modal-lg');
+  window._tSlots=JSON.parse(JSON.stringify(t?.slots||[]));
+}
 
-// ‚îÄ‚îÄ App ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
-const sortedArr = arr => [...arr].sort((a,b)=>a.date.localeCompare(b.date));
+function buildSlotOptions(){
+  return db.groups.map(g=>`<optgroup label="${esc(g.name)}">${(g.dienste||[]).map(d=>`<option value="${g.id}|${d.id}">${esc(d.name)}</option>`).join('')}</optgroup>`).join('');
+}
 
-const App = () => {
-  const [role, setRole] = useState(()=>localStorage.getItem('revive-role')||null);
-  const [entries,    setEntries]    = useState(()=>{ try{const s=localStorage.getItem('revive-entries'); return s?JSON.parse(s):[];}catch{return[];} });
-  const [eventTypes, setEventTypes] = useState(()=>{ try{const s=localStorage.getItem('revive-etypes'); return s?JSON.parse(s):DEFAULT_TYPES;}catch{return DEFAULT_TYPES;} });
-  const [page,    setPage]    = useState('dashboard');
-  const [editing, setEditing] = useState(null);
-  const [syncState, setSyncState] = useState('connecting');
-  const isAdmin = role === 'admin';
+function addTSlot(){
+  const val=document.getElementById('tm-slot-sel').value;
+  if(!val) return;
+  const [groupId,dienstId]=val.split('|');
+  const slot={id:uid(),groupId,dienstId};
+  window._tSlots.push(slot);
+  const cont=document.getElementById('tm-slots');
+  const empty=cont.querySelector('[style*="color:var(--txt3)"]');
+  if(empty) empty.remove();
+  const row=document.createElement('div');
+  row.className='dienst-row'; row.id=`tsl_${slot.id}`;
+  row.innerHTML=`<span style="font-size:12px;font-weight:600;color:var(--txt)">${getGroupName(groupId)} / ${getDienstName(dienstId)}</span><button class="btn btn-dan-ghost btn-xs" onclick="removeTSlot('${slot.id}')">&#215;</button>`;
+  cont.appendChild(row);
+}
 
-  const login = (r) => { setRole(r); localStorage.setItem('revive-role', r); };
-  const logout = () => { setRole(null); localStorage.removeItem('revive-role'); setPage('dashboard'); };
+function removeTSlot(sid){
+  window._tSlots=(window._tSlots||[]).filter(s=>s.id!==sid);
+  document.getElementById('tsl_'+sid)?.remove();
+}
 
-  // ‚îÄ‚îÄ Firestore helpers ‚îÄ‚îÄ
-  const writeEntries = (data) => {
-    setSyncState('saving');
-    localStorage.setItem('revive-entries', JSON.stringify(data));
-    db.collection('revive').doc('entries').set({ data })
-      .then(()=>setSyncState('synced'))
-      .catch(()=>setSyncState('error'));
-  };
-  const writeTypes = (data) => {
-    localStorage.setItem('revive-etypes', JSON.stringify(data));
-    db.collection('revive').doc('eventTypes').set({ data }).catch(()=>{});
-  };
+function saveTemplate(id){
+  const name=document.getElementById('tm-name').value.trim();
+  if(!name){ toast('Name fehlt','err'); return; }
+  const data={name,timeStart:document.getElementById('tm-start').value,timeEnd:document.getElementById('tm-end').value,slots:window._tSlots||[]};
+  if(id){ Object.assign(db.templates.find(x=>x.id===id),data); }
+  else { db.templates.push({id:uid(),...data}); }
+  saveDB(); closeModal(); renderVorlList(); toast('Vorlage gespeichert','ok');
+}
 
-  // ‚îÄ‚îÄ Firestore listeners (read-only) ‚îÄ‚îÄ
-  useEffect(() => {
-    const unsubE = db.collection('revive').doc('entries').onSnapshot(
-      { includeMetadataChanges: true },
-      snap => {
-        if (snap.metadata.hasPendingWrites) return;
-        const data = snap.data()?.data || [];
-        localStorage.setItem('revive-entries', JSON.stringify(data));
-        setEntries(data);
-        setSyncState('synced');
-      },
-      () => setSyncState('error')
-    );
-    const unsubT = db.collection('revive').doc('eventTypes').onSnapshot(
-      { includeMetadataChanges: true },
-      snap => {
-        if (snap.metadata.hasPendingWrites) return;
-        const data = snap.data()?.data;
-        if (data) { localStorage.setItem('revive-etypes', JSON.stringify(data)); setEventTypes(data); }
-        setSyncState('synced');
-      },
-      ()=>{}
-    );
-    return () => { unsubE(); unsubT(); };
-  }, []);
+function deleteTemplate(id){
+  db.templates=db.templates.filter(x=>x.id!==id);
+  saveDB(); renderVorlList(); toast('Gel√∂scht');
+}
 
-  // ‚îÄ‚îÄ Mutationen (nur Admin) ‚îÄ‚îÄ
-  const addEntry = (e) => {
-    const next = sortedArr([...entries, {...e, id:genId()}]);
-    setEntries(next); writeEntries(next); setPage('entries');
-  };
-  const updateEntry = (id, d) => {
-    const next = sortedArr(entries.map(e=>e.id===id?{...e,...d}:e));
-    setEntries(next); writeEntries(next); setEditing(null); setPage('entries');
-  };
-  const deleteEntry = (id) => {
-    const next = entries.filter(e=>e.id!==id);
-    setEntries(next); writeEntries(next);
-  };
-  const updateEventTypes = (updater) => {
-    const next = typeof updater==='function' ? updater(eventTypes) : updater;
-    setEventTypes(next); writeTypes(next);
-  };
-  const importCSV = ev => {
-    const file = ev.target.files?.[0]; if (!file) return;
-    const r = new FileReader();
-    r.onload = e => {
-      const lines = e.target.result.split('\n').filter(Boolean);
-      const imp = [];
-      for (let i=1;i<lines.length;i++) {
-        const c = lines[i].match(/(".*?"|[^,]+)/g)?.map(x=>x.replace(/^"|"$/g,'').replace(/""/g,'"'))||[];
-        if (c[0]) imp.push({id:genId(),date:c[0],dateTo:'',event:c[1]||'',eventTypeId:'',
-          besucher:Number(c[2])||0,erstbesucher:Number(c[3])||0,entscheidungen:Number(c[4])||0,taufen:Number(c[5])||0,notes:c[6]||''});
+function useTemplate(tid){
+  openSchichtModal(null,tid);
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: DIENSTPLAN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+let dpFilter={from:'',to:''};
+
+function renderDienstplan(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
+      <div><div class="page-title">Dienstplan</div><div class="page-sub">${db.schichten.length} Schichten</div></div>
+      <div class="page-acts">
+        <button class="btn btn-sec btn-sm" onclick="openAutoModal()">Auto-Einteilung</button>
+        <button class="btn btn-sec btn-sm" onclick="openSharePeriodModal()">Teilen</button>
+        <button class="btn btn-acc btn-sm" onclick="openSchichtModal()">+ Schicht</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="period-bar">
+        <label>Von</label><input type="date" value="${dpFilter.from}" onchange="dpFilter.from=this.value;renderSchichtenList()">
+        <label style="margin-left:8px">Bis</label><input type="date" value="${dpFilter.to}" onchange="dpFilter.to=this.value;renderSchichtenList()">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="dpFilter={from:'',to:''};renderSchichtenList()">Reset</button>
+    </div>
+    <div id="schichten-list"></div>`;
+  renderSchichtenList();
+}
+
+function renderSchichtenList(){
+  const el=document.getElementById('schichten-list');
+  if(!el) return;
+  let list=[...db.schichten];
+  if(dpFilter.from) list=list.filter(s=>s.date>=dpFilter.from);
+  if(dpFilter.to) list=list.filter(s=>s.date<=dpFilter.to);
+  list.sort((a,b)=>a.date<b.date?-1:1);
+  if(!list.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">üìÖ</div><div class="empty-title">Keine Schichten</div><div class="empty-sub">Erstelle eine neue Schicht oder nutze eine Vorlage.</div></div>';
+    return;
+  }
+  el.innerHTML=list.map(renderSchichtCard).join('');
+  document.querySelector('.page-sub').textContent=`${db.schichten.length} Schichten`;
+}
+
+function renderSchichtCard(s){
+  const grouped=groupSlots(s.slots||[]);
+  const totalSlots=(s.slots||[]).length;
+  const filled=(s.slots||[]).filter(sl=>db.assignments.some(a=>a.slotId===sl.id)).length;
+  const full=filled===totalSlots&&totalSlots>0;
+
+  let slotsHTML='';
+  for(const [gid,slots] of Object.entries(grouped)){
+    const g=db.groups.find(x=>x.id===gid);
+    slotsHTML+=`<div class="group-section-label" style="color:${g?.color||'var(--txt3)'}">${esc(g?.name||gid)}</div>`;
+    slotsHTML+=slots.map(sl=>{
+      const asgn=db.assignments.find(a=>a.slotId===sl.id);
+      const person=asgn?db.persons.find(p=>p.id===asgn.personId):null;
+      return `<div class="slot-row">
+        <div class="slot-dienst">${esc(getDienstName(sl.dienstId))}</div>
+        <div class="slot-person">
+          ${person?`<div class="av av-sm" style="background:${person.color||'#6366f1'}">${initials(person.name)}</div><span style="font-size:12px;font-weight:600;color:var(--txt)">${esc(person.name)}</span>`
+          :`<span class="slot-empty">Offen</span>`}
+        </div>
+        <div class="slot-actions">
+          <button class="btn btn-ghost btn-xs" onclick="openAssignModal('${s.id}','${sl.id}','${sl.dienstId}')">Zuweisen</button>
+          ${asgn?`<button class="btn btn-dan-ghost btn-xs" onclick="removeAssignment('${sl.id}')">&#215;</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const wishCount=db.wishes.filter(w=>w.schichtId===s.id).length;
+
+  return `<div class="schicht-card" id="sc_${s.id}">
+    <div class="schicht-card-hd">
+      <div style="flex:1">
+        <div class="schicht-date">${fmtDate(s.date)}</div>
+        <div class="schicht-name">${esc(s.name)}</div>
+        ${s.timeStart?`<div class="schicht-time" style="margin-top:2px">${s.timeStart}${s.timeEnd?' ‚Äì '+s.timeEnd:''}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+        ${s.published?'<span class="badge badge-pub">Ver√∂ffentlicht</span>':'<span class="badge badge-draft">Entwurf</span>'}
+        <span class="badge ${full?'badge-ok':'badge-war'}">${filled}/${totalSlots}</span>
+        ${wishCount?`<span class="badge badge-acc">${wishCount} W√ºnsche</span>`:''}
+        <div style="display:flex;gap:4px;margin-left:4px">
+          <button class="btn btn-ghost btn-xs" onclick="openWishModal('${s.id}')">W√ºnsche</button>
+          <button class="btn btn-ghost btn-xs" onclick="openShareSchichtModal('${s.id}')">Teilen</button>
+          <button class="btn btn-ghost btn-xs" onclick="openSchichtModal('${s.id}')">Bearb.</button>
+          ${s.published
+            ?`<button class="btn btn-dan-ghost btn-xs" onclick="unpublishSchicht('${s.id}')">Zur√ºckziehen</button>`
+            :`<button class="btn btn-suc btn-xs" onclick="publishSchicht('${s.id}')">Ver√∂ffentlichen</button>`}
+        </div>
+      </div>
+    </div>
+    <div class="schicht-body">${slotsHTML||'<div style="font-size:12px;color:var(--txt3)">Keine Slots</div>'}</div>
+    ${s.notes?`<div style="padding:8px 18px 12px;font-size:12px;color:var(--txt3);border-top:1px solid var(--brd)">${esc(s.notes)}</div>`:''}
+  </div>`;
+}
+
+function groupSlots(slots){
+  const r={};
+  for(const sl of slots){ if(!r[sl.groupId]) r[sl.groupId]=[]; r[sl.groupId].push(sl); }
+  return r;
+}
+
+function openSchichtModal(id,templateId){
+  const s=id?db.schichten.find(x=>x.id===id):null;
+  const t=templateId?db.templates.find(x=>x.id===templateId):null;
+  const slotOpts=buildSlotOptions();
+  const existingSlots=s?s.slots:(t?t.slots.map(sl=>({...sl,id:uid(),allowDouble:false,blocked:[]})):[]);
+  window._schSlots=JSON.parse(JSON.stringify(existingSlots));
+  const slotRows=window._schSlots.map(buildSchSlotRow).join('');
+  openModal(`
+    <div class="modal-header"><h3>${s?'Schicht bearbeiten':t?'Schicht aus Vorlage':'Neue Schicht'}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Name</label><input id="sm-name" value="${esc(s?.name||t?.name||'')}"></div>
+        <div class="form-group"><label class="field-label">Datum</label><input type="date" id="sm-date" value="${s?.date||''}"></div>
+      </div>
+      <div class="form-grid col2">
+        <div class="form-group"><label class="field-label">Start</label><input type="time" id="sm-start" value="${s?.timeStart||t?.timeStart||''}"></div>
+        <div class="form-group"><label class="field-label">Ende</label><input type="time" id="sm-end" value="${s?.timeEnd||t?.timeEnd||''}"></div>
+      </div>
+      <div class="form-group"><label class="field-label">Notizen</label><textarea id="sm-notes" rows="2">${esc(s?.notes||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">Slots</label>
+        <div id="sm-slots" style="border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-bottom:8px;background:var(--bg3)">${slotRows||'<div id="sm-empty" style="padding:10px;font-size:12px;color:var(--txt3)">Noch keine Slots</div>'}</div>
+        <div style="display:flex;gap:8px">
+          <select id="sm-slot-sel" style="flex:1">${slotOpts}</select>
+          <button class="btn btn-sec btn-sm" onclick="addSchSlot()">+ Slot</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      ${s?`<button class="btn btn-dan-ghost btn-sm" onclick="deleteSchicht('${id}')">L√∂schen</button>`:''}
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveSchicht('${id||''}')">Speichern</button>
+    </div>`,'modal-lg');
+}
+
+function buildSchSlotRow(sl){
+  const blocked=(sl.blocked||[]).map(pid=>{const p=db.persons.find(x=>x.id===pid);return p?initials(p.name):'?';}).join(', ');
+  return `<div class="dienst-row" id="ssl_${sl.id}" style="flex-wrap:wrap;gap:6px">
+    <span style="font-size:12px;font-weight:600;color:var(--txt);flex:1">${getGroupName(sl.groupId)} / ${getDienstName(sl.dienstId)}</span>
+    <label style="font-size:11px;color:var(--txt3);display:flex;align-items:center;gap:4px;cursor:pointer">
+      <input type="checkbox" ${sl.allowDouble?'checked':''} onchange="setSlotDouble('${sl.id}',this.checked)"> Doppel
+    </label>
+    <button class="btn btn-ghost btn-xs" onclick="openSchBlockModal('${sl.id}')">Gesperrt${blocked?': '+blocked:''}</button>
+    <button class="btn btn-dan-ghost btn-xs" onclick="removeSchSlot('${sl.id}')">&#215;</button>
+  </div>`;
+}
+
+function addSchSlot(){
+  const val=document.getElementById('sm-slot-sel').value;
+  if(!val) return;
+  const [groupId,dienstId]=val.split('|');
+  const sl={id:uid(),groupId,dienstId,allowDouble:false,blocked:[]};
+  window._schSlots.push(sl);
+  const cont=document.getElementById('sm-slots');
+  document.getElementById('sm-empty')?.remove();
+  const row=document.createElement('div');
+  row.innerHTML=buildSchSlotRow(sl);
+  cont.appendChild(row.firstElementChild);
+}
+
+function removeSchSlot(sid){
+  window._schSlots=(window._schSlots||[]).filter(s=>s.id!==sid);
+  document.getElementById('ssl_'+sid)?.remove();
+}
+
+function setSlotDouble(sid,val){
+  const sl=(window._schSlots||[]).find(s=>s.id===sid);
+  if(sl) sl.allowDouble=val;
+}
+
+function openSchBlockModal(slotId){
+  const sl=(window._schSlots||[]).find(s=>s.id===slotId);
+  if(!sl) return;
+  const names=db.persons.map(p=>`
+    <div class="check-row">
+      <input type="checkbox" id="blk_${p.id}" ${(sl.blocked||[]).includes(p.id)?'checked':''}>
+      <label for="blk_${p.id}">${esc(p.name)}</label>
+    </div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>Gesperrte Personen</h3><button class="close-btn" onclick="saveSchBlock('${slotId}')">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">W√§hle Personen, die f√ºr diesen Slot nicht eingeteilt werden k√∂nnen.</p>
+      ${names||'<p style="color:var(--txt3)">Keine Personen angelegt.</p>'}
+    </div>
+    <div class="modal-footer"><button class="btn btn-acc btn-sm" onclick="saveSchBlock('${slotId}')">OK</button></div>`);
+}
+
+function saveSchBlock(slotId){
+  const sl=(window._schSlots||[]).find(s=>s.id===slotId);
+  if(!sl) return;
+  sl.blocked=[...document.querySelectorAll('[id^="blk_"]:checked')].map(el=>el.id.slice(4));
+  closeModal();
+  const btn=document.querySelector(`#ssl_${slotId} button.btn-ghost`);
+  if(btn){ const b=(sl.blocked||[]).map(pid=>{const p=db.persons.find(x=>x.id===pid);return p?initials(p.name):'?';}).join(', ');
+    btn.textContent='Gesperrt'+(b?': '+b:''); }
+}
+
+function saveSchicht(id){
+  const name=document.getElementById('sm-name').value.trim();
+  const date=document.getElementById('sm-date').value;
+  if(!name){ toast('Name fehlt','err'); return; }
+  if(!date){ toast('Datum fehlt','err'); return; }
+  const data={name,date,timeStart:document.getElementById('sm-start').value,
+    timeEnd:document.getElementById('sm-end').value,
+    notes:document.getElementById('sm-notes').value.trim(),
+    slots:window._schSlots||[]};
+  if(id){ Object.assign(db.schichten.find(x=>x.id===id),data); }
+  else { db.schichten.push({id:uid(),published:false,...data}); }
+  saveDB(); closeModal(); renderSchichtenList(); toast('Schicht gespeichert','ok');
+}
+
+function deleteSchicht(id){
+  if(!confirm('Schicht l√∂schen?')) return;
+  db.schichten=db.schichten.filter(x=>x.id!==id);
+  db.assignments=db.assignments.filter(x=>x.schichtId!==id);
+  db.wishes=db.wishes.filter(x=>x.schichtId!==id);
+  saveDB(); closeModal(); renderSchichtenList();
+}
+
+function publishSchicht(id){
+  const s=db.schichten.find(x=>x.id===id);
+  if(s){ s.published=true; saveDB(); renderSchichtenList(); toast('Ver√∂ffentlicht','ok'); }
+}
+
+function unpublishSchicht(id){
+  const s=db.schichten.find(x=>x.id===id);
+  if(s){ s.published=false; saveDB(); renderSchichtenList(); toast('Zur√ºckgezogen'); }
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   ASSIGN MODAL
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+let _actx={};
+
+function openAssignModal(schichtId,slotId,dienstId){
+  const s=db.schichten.find(x=>x.id===schichtId);
+  const slot=(s?.slots||[]).find(x=>x.id===slotId);
+  const current=db.assignments.find(a=>a.slotId===slotId);
+  const currentPerson=current?db.persons.find(p=>p.id===current.personId):null;
+  _actx={schichtId,slotId,dienstId};
+  const blocked=slot?.blocked||[];
+  const inSchicht=db.assignments.filter(a=>a.schichtId===schichtId).map(a=>a.personId);
+  const qualified=db.persons.filter(p=>!blocked.includes(p.id)&&(p.qualifications||[]).includes(dienstId));
+  const all=db.persons.filter(p=>!blocked.includes(p.id));
+  const list=qualified.length?qualified:all;
+  const wishes=db.wishes.filter(w=>w.schichtId===schichtId);
+
+  const rows=list.map(p=>{
+    const w=wishes.find(w=>w.personId===p.id);
+    const already=inSchicht.includes(p.id)&&p.id!==current?.personId;
+    const disabled=already&&!slot?.allowDouble;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);${disabled?'opacity:.35;pointer-events:none':''}">
+      <div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--txt)">${esc(p.name)}</div>
+        <div style="display:flex;gap:6px;margin-top:2px">
+          ${w?.type==='frei'?'<span style="color:var(--dan);font-size:10px;font-weight:700">Wunschfrei</span>':''}
+          ${w?.type==='dienst'?'<span style="color:var(--suc);font-size:10px;font-weight:700">Wunschdienst</span>':''}
+          ${already&&!slot?.allowDouble?'<span style="color:var(--txt3);font-size:10px">Bereits eingeteilt</span>':''}
+        </div>
+      </div>
+      <button class="btn btn-acc btn-xs" onclick="doAssign('${p.id}')">Zuweisen</button>
+    </div>`;
+  }).join('');
+
+  openModal(`
+    <div class="modal-header"><h3>Zuweisung: ${esc(getDienstName(dienstId))}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      ${currentPerson?`<div style="background:var(--suc-l);border-radius:var(--r);padding:10px 12px;margin-bottom:14px;font-size:13px;color:#34d399;border:1px solid rgba(16,185,129,.2)">Aktuell: <strong>${esc(currentPerson.name)}</strong> <button class="btn btn-dan-ghost btn-xs" style="margin-left:8px" onclick="removeAssignment('${slotId}');closeModal()">Entfernen</button></div>`:''}
+      ${!qualified.length&&all.length?'<p style="font-size:12px;color:var(--war);margin-bottom:10px">Keine qualifizierten Personen ‚Äì zeige alle.</p>':''}
+      <div style="max-height:320px;overflow-y:auto">${rows||'<p style="color:var(--txt3);font-size:13px">Keine Personen verf√ºgbar.</p>'}</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`);
+}
+
+function doAssign(personId){
+  const {schichtId,slotId}=_actx;
+  db.assignments=db.assignments.filter(a=>a.slotId!==slotId);
+  db.assignments.push({id:uid(),schichtId,slotId,personId});
+  saveDB(); closeModal(); renderSchichtenList(); toast('Zugewiesen','ok');
+}
+
+function removeAssignment(slotId){
+  db.assignments=db.assignments.filter(a=>a.slotId!==slotId);
+  saveDB(); renderSchichtenList(); toast('Zuweisung entfernt');
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   WISH MODAL
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function openWishModal(schichtId){
+  const s=db.schichten.find(x=>x.id===schichtId);
+  const wishes=db.wishes.filter(w=>w.schichtId===schichtId);
+  const wishRows=wishes.map(w=>{
+    const p=db.persons.find(x=>x.id===w.personId);
+    return `<div class="wish-row">
+      <div class="av av-sm" style="background:${p?.color||'#6366f1'}">${initials(p?.name||'?')}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--txt)">${esc(p?.name||'?')}</div>
+        <div style="font-size:11px;font-weight:700;color:${w.type==='frei'?'var(--dan)':'var(--suc)'}">${w.type==='frei'?'Wunschfrei':'Wunschdienst'}${w.note?' ¬∑ '+esc(w.note):''}</div>
+      </div>
+      <button class="btn btn-dan-ghost btn-xs" onclick="deleteWish('${w.id}','${schichtId}')">&#215;</button>
+    </div>`;
+  }).join('');
+  const personOpts=db.persons.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>W√ºnsche: ${esc(s?.name||'')}</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px">${wishRows||'<p style="color:var(--txt3);font-size:13px">Keine W√ºnsche eingetragen.</p>'}</div>
+      <div class="divider"></div>
+      <div class="form-group"><label class="field-label">Person</label><select id="wm-person">${personOpts}</select></div>
+      <div class="form-group"><label class="field-label">Typ</label>
+        <select id="wm-type"><option value="frei">Wunschfrei</option><option value="dienst">Wunschdienst</option></select>
+      </div>
+      <div class="form-group"><label class="field-label">Notiz</label><input id="wm-note" placeholder="Optional‚Ä¶"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button>
+      <button class="btn btn-acc btn-sm" onclick="saveWish('${schichtId}')">Wunsch speichern</button>
+    </div>`);
+}
+
+function saveWish(schichtId){
+  const personId=document.getElementById('wm-person').value;
+  const type=document.getElementById('wm-type').value;
+  const note=document.getElementById('wm-note').value.trim();
+  db.wishes=db.wishes.filter(w=>!(w.personId===personId&&w.schichtId===schichtId));
+  db.wishes.push({id:uid(),schichtId,personId,type,note});
+  saveDB(); openWishModal(schichtId); toast('Wunsch gespeichert','ok');
+}
+
+function deleteWish(id,schichtId){
+  db.wishes=db.wishes.filter(w=>w.id!==id);
+  saveDB(); openWishModal(schichtId);
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   AUTO-ASSIGN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function openAutoModal(){
+  const schichtOpts=db.schichten.sort((a,b)=>a.date<b.date?-1:1).map(s=>`
+    <div class="check-row"><input type="checkbox" id="au_${s.id}" checked><label for="au_${s.id}">${fmtDate(s.date)} ‚Äì ${esc(s.name)}</label></div>`).join('');
+  openModal(`
+    <div class="modal-header"><h3>Auto-Einteilung</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="field-label">Schichten</label>
+        <div style="max-height:180px;overflow-y:auto;border:1px solid var(--brd);border-radius:var(--r);padding:10px;background:var(--bg3)">${schichtOpts||'<p style="color:var(--txt3);font-size:12px">Keine Schichten</p>'}</div>
+      </div>
+      <div class="form-group"><label class="field-label">Optionen</label>
+        <div class="check-row"><input type="checkbox" id="ao-qual" checked><label for="ao-qual">Nur qualifizierte Personen</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-frei" checked><label for="ao-frei">Wunschfrei ber√ºcksichtigen</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-ndbl" checked><label for="ao-ndbl">Keine Doppelbesetzung pro Schicht</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-fair" checked><label for="ao-fair">Gleichm√§√üige Verteilung</label></div>
+        <div class="check-row"><input type="checkbox" id="ao-over"><label for="ao-over">Bestehende Zuweisung √ºberschreiben</label></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="runAuto()">Einteilen</button>
+    </div>`);
+}
+
+function runAuto(){
+  const selSchichten=db.schichten.filter(s=>document.getElementById('au_'+s.id)?.checked);
+  const qualOnly=document.getElementById('ao-qual').checked;
+  const respFrei=document.getElementById('ao-frei').checked;
+  const noDouble=document.getElementById('ao-ndbl').checked;
+  const fair=document.getElementById('ao-fair').checked;
+  const overwrite=document.getElementById('ao-over').checked;
+  const load={};
+  for(const p of db.persons) load[p.id]=db.assignments.filter(a=>a.personId===p.id).length;
+  let count=0;
+  for(const s of selSchichten){
+    const inSchicht=new Set(db.assignments.filter(a=>a.schichtId===s.id).map(a=>a.personId));
+    const wishes=db.wishes.filter(w=>w.schichtId===s.id);
+    for(const slot of (s.slots||[])){
+      if(!overwrite&&db.assignments.some(a=>a.slotId===slot.id)) continue;
+      if(overwrite) db.assignments=db.assignments.filter(a=>a.slotId!==slot.id);
+      const blocked=slot.blocked||[];
+      let cands=db.persons.filter(p=>{
+        if(blocked.includes(p.id)) return false;
+        if(qualOnly&&!(p.qualifications||[]).includes(slot.dienstId)) return false;
+        if(respFrei&&wishes.find(w=>w.personId===p.id&&w.type==='frei')) return false;
+        if(noDouble&&!slot.allowDouble&&inSchicht.has(p.id)) return false;
+        return true;
+      });
+      if(!cands.length) continue;
+      const wd=cands.filter(p=>wishes.find(w=>w.personId===p.id&&w.type==='dienst'));
+      if(wd.length) cands=wd;
+      if(fair) cands.sort((a,b)=>(load[a.id]||0)-(load[b.id]||0));
+      const chosen=cands[0];
+      db.assignments.push({id:uid(),schichtId:s.id,slotId:slot.id,personId:chosen.id});
+      load[chosen.id]=(load[chosen.id]||0)+1;
+      inSchicht.add(chosen.id);
+      count++;
+    }
+  }
+  saveDB(); closeModal(); renderSchichtenList(); toast(`${count} Zuweisung(en) erstellt`,'ok');
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: STATISTIK
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function renderStatistik(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
+      <div><div class="page-title">Statistik</div><div class="page-sub">Eins√§tze & Auslastung</div></div>
+      <div class="page-acts">
+        <select id="stat-period" onchange="renderStatContent()" style="font-size:13px;padding:6px 10px;border-radius:var(--r);border:1px solid var(--brd2);background:var(--bg3);color:var(--txt)">
+          <option value="all">Alle Zeiten</option>
+          <option value="30">Letzter Monat</option>
+          <option value="90">Letzte 3 Monate</option>
+          <option value="365">Letztes Jahr</option>
+        </select>
+      </div>
+    </div>
+    <div id="stat-content"></div>`;
+  renderStatContent();
+}
+
+function renderStatContent(){
+  const days=document.getElementById('stat-period')?.value;
+  let assignments=db.assignments;
+  if(days&&days!=='all'){
+    const cutoff=new Date(); cutoff.setDate(cutoff.getDate()-parseInt(days));
+    const cutStr=cutoff.toISOString().slice(0,10);
+    const valid=new Set(db.schichten.filter(s=>s.date>=cutStr).map(s=>s.id));
+    assignments=assignments.filter(a=>valid.has(a.schichtId));
+  }
+  const stats=db.persons.map(p=>{
+    const pa=assignments.filter(a=>a.personId===p.id);
+    const byGroup={};
+    for(const a of pa){
+      const s=db.schichten.find(x=>x.id===a.schichtId);
+      const slot=(s?.slots||[]).find(sl=>sl.id===a.slotId);
+      if(slot){ const gid=slot.groupId; byGroup[gid]=(byGroup[gid]||0)+1; }
+    }
+    return {p,total:pa.length,byGroup};
+  }).sort((a,b)=>b.total-a.total);
+  const maxTotal=stats[0]?.total||1;
+  const totalAll=assignments.length;
+  const avgPerson=db.persons.length?Math.round(totalAll/db.persons.length*10)/10:0;
+
+  const summaryHTML=`<div class="stat-grid">
+    <div class="stat-card"><div class="stat-num">${db.schichten.length}</div><div class="stat-lbl">Schichten</div></div>
+    <div class="stat-card"><div class="stat-num">${totalAll}</div><div class="stat-lbl">Eins√§tze</div></div>
+    <div class="stat-card"><div class="stat-num">${db.persons.length}</div><div class="stat-lbl">Personen</div></div>
+    <div class="stat-card"><div class="stat-num">${avgPerson}</div><div class="stat-lbl">√ò / Person</div></div>
+  </div>`;
+
+  const personRows=stats.map(({p,total,byGroup})=>{
+    const pct=Math.round((total/maxTotal)*100);
+    const pills=Object.entries(byGroup).map(([gid,cnt])=>{
+      const g=db.groups.find(x=>x.id===gid);
+      return `<span class="tag" style="background:${g?.color||'#6366f1'}20;color:${g?.color||'#6366f1'}">${esc(g?.name||gid)}: ${cnt}</span>`;
+    }).join('');
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div class="av av-md" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:5px">
+          <span style="font-size:13px;font-weight:700;color:var(--txt)">${esc(p.name)}</span>
+          <span style="font-size:11px;color:var(--txt3)">${esc(p.role||'')}</span>
+          <span style="font-size:16px;font-weight:900;color:${p.color||'var(--acc2)'};margin-left:auto">${total}√ó</span>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:3px;height:5px;margin-bottom:6px;overflow:hidden">
+          <div style="background:${p.color||'var(--acc2)'};height:100%;border-radius:3px;width:${pct}%;transition:width .5s ease"></div>
+        </div>
+        ${pills?`<div style="display:flex;flex-wrap:wrap;gap:3px">${pills}</div>`:'<span style="font-size:11px;color:var(--txt3)">Noch kein Einsatz</span>'}
+      </div>
+    </div>`;
+  }).join('');
+
+  const groupBreakdown=db.groups.map(g=>{
+    const cnt=assignments.filter(a=>{
+      const s=db.schichten.find(x=>x.id===a.schichtId);
+      const sl=(s?.slots||[]).find(sl=>sl.id===a.slotId);
+      return sl?.groupId===g.id;
+    }).length;
+    const pct=Math.round((cnt/(totalAll||1))*100);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="width:10px;height:10px;border-radius:50%;background:${g.color};flex-shrink:0"></div>
+      <span style="font-size:13px;font-weight:600;flex:1;color:var(--txt)">${esc(g.name)}</span>
+      <span style="font-size:14px;font-weight:800;color:${g.color}">${cnt}√ó</span>
+      <span style="font-size:11px;color:var(--txt3);width:32px;text-align:right">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('stat-content').innerHTML=`
+    ${summaryHTML}
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:start">
+      <div class="card">
+        <div class="card-hd"><h2>Eins√§tze pro Person</h2></div>
+        <div class="card-body">${personRows||'<p style="color:var(--txt3);font-size:13px">Noch keine Daten.</p>'}</div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2>Nach Gruppe</h2></div>
+        <div class="card-body">${groupBreakdown||'<p style="color:var(--txt3);font-size:13px">Keine Daten.</p>'}</div>
+      </div>
+    </div>`;
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   SHARE
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function openShareSchichtModal(schichtId){
+  const s=db.schichten.find(x=>x.id===schichtId);
+  if(!s) return;
+  showShareModal(buildSchichtWA(s), buildEmailHTML([s]));
+}
+
+function openSharePeriodModal(){
+  const list=db.schichten.filter(s=>s.published).sort((a,b)=>a.date<b.date?-1:1);
+  showShareModal(list.map(buildSchichtWA).join('\n\n---\n\n'), buildEmailHTML(list));
+}
+
+function showShareModal(waText, htmlEmail){
+  openModal(`
+    <div class="modal-header"><h3>Dienstplan teilen</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <div class="mtabs">
+        <button class="mtab active" onclick="switchShareTab('wa',this)">WhatsApp</button>
+        <button class="mtab" onclick="switchShareTab('email',this)">E-Mail HTML</button>
+        <button class="mtab" onclick="switchShareTab('remind',this)">Erinnerungen</button>
+      </div>
+      <div id="share-wa">
+        <div class="share-preview">${esc(waText)}</div>
+        <div class="copy-row">
+          <button class="btn btn-acc btn-sm" onclick="copyText(window._swa,'wa-ok')">Kopieren</button>
+          <span id="wa-ok" class="hidden" style="color:var(--suc);font-size:12px">Kopiert!</span>
+        </div>
+      </div>
+      <div id="share-email" class="hidden">
+        <div class="share-preview">${esc(htmlEmail)}</div>
+        <div class="copy-row">
+          <button class="btn btn-acc btn-sm" onclick="copyText(window._shtml,'email-ok')">HTML kopieren</button>
+          <span id="email-ok" class="hidden" style="color:var(--suc);font-size:12px">Kopiert!</span>
+        </div>
+      </div>
+      <div id="share-remind" class="hidden">
+        <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">E-Mail-Entw√ºrfe f√ºr eingeteilte Personen mit E-Mail-Adresse.</p>
+        <div>${buildReminderList(waText)}</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-sec btn-sm" onclick="closeModal()">Schlie√üen</button></div>`,'modal-lg');
+  window._swa=waText; window._shtml=htmlEmail;
+}
+
+function switchShareTab(tab,btn){
+  ['wa','email','remind'].forEach(t=>document.getElementById('share-'+t).classList.add('hidden'));
+  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('share-'+tab).classList.remove('hidden');
+  btn.classList.add('active');
+}
+
+function copyText(text,okId){
+  navigator.clipboard.writeText(text||'').then(()=>{
+    const ok=document.getElementById(okId);
+    if(ok){ ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2000); }
+  });
+}
+
+function buildReminderList(bodyText){
+  const pids=[...new Set(db.assignments.map(a=>a.personId))];
+  const withEmail=pids.map(pid=>db.persons.find(p=>p.id===pid)).filter(p=>p?.email);
+  if(!withEmail.length) return '<p style="color:var(--txt3);font-size:13px">Keine Personen mit E-Mail-Adresse.</p>';
+  return withEmail.map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div class="av av-sm" style="background:${p.color||'#6366f1'}">${initials(p.name)}</div>
+      <div style="flex:1;font-size:13px;font-weight:600;color:var(--txt)">${esc(p.name)}</div>
+      <span style="font-size:12px;color:var(--txt3)">${esc(p.email)}</span>
+      <a class="btn btn-acc btn-xs" href="mailto:${encodeURIComponent(p.email)}?subject=${encodeURIComponent('Dein Dienstplan')}&body=${encodeURIComponent(bodyText)}" target="_blank">Schreiben</a>
+    </div>`).join('');
+}
+
+function buildSchichtWA(s){
+  const lines=[`*${s.name}*`,`${fmtDate(s.date)}${s.timeStart?' | '+s.timeStart+(s.timeEnd?' ‚Äì '+s.timeEnd:''):''}`];
+  const grouped=groupSlots(s.slots||[]);
+  for(const [gid,slots] of Object.entries(grouped)){
+    const g=db.groups.find(x=>x.id===gid);
+    lines.push(`\n*${g?.name||gid}*`);
+    for(const sl of slots){
+      const asgn=db.assignments.find(a=>a.slotId===sl.id);
+      lines.push(`  ${getDienstName(sl.dienstId)}: ${asgn?(db.persons.find(p=>p.id===asgn.personId)?.name||'?'):'Offen'}`);
+    }
+  }
+  return lines.join('\n');
+}
+
+function buildEmailHTML(schichten){
+  const rows=schichten.map(s=>{
+    const grouped=groupSlots(s.slots||[]);
+    let sections='';
+    for(const [gid,slots] of Object.entries(grouped)){
+      const g=db.groups.find(x=>x.id===gid);
+      const color=g?.color||'#6366f1';
+      sections+=`<tr><td colspan="2" style="padding:10px 12px 4px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:${color};background:#1a1f35">${esc(g?.name||gid)}</td></tr>`;
+      for(const sl of slots){
+        const asgn=db.assignments.find(a=>a.slotId===sl.id);
+        const pname=asgn?(db.persons.find(p=>p.id===asgn.personId)?.name||'?'):'‚Äî';
+        const pcolor=asgn?(db.persons.find(p=>p.id===asgn.personId)?.color||'#94a3b8'):'#94a3b8';
+        sections+=`<tr>
+          <td style="padding:7px 12px;font-size:13px;color:#94a3b8;border-bottom:1px solid #0d1117">${esc(getDienstName(sl.dienstId))}</td>
+          <td style="padding:7px 12px;border-bottom:1px solid #0d1117">
+            ${asgn?`<span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#e2e8f0">
+              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${pcolor}"></span>${esc(pname)}</span>`
+            :`<span style="font-size:13px;color:#475569;font-style:italic">Offen</span>`}
+          </td></tr>`;
       }
-      if (imp.length) { const next=sortedArr([...entries,...imp]); setEntries(next); writeEntries(next); alert(imp.length+' Eintr\u00e4ge importiert.'); }
-    };
-    r.readAsText(file); ev.target.value='';
-  };
-
-  if (!role) return <LoginScreen onLogin={login}/>;
-
-  const TABS = [
-    {id:'dashboard', label:'Dashboard',    icon:IC.chart  },
-    {id:'compare',   label:'Vergleich',    icon:IC.compare},
-    ...(isAdmin ? [{id:'form', label:'Neuer Eintrag', icon:IC.plus}] : []),
-    {id:'entries',   label:'Eintr\u00e4ge', icon:IC.list  },
-    ...(isAdmin ? [{id:'types', label:'Event-Typen', icon:IC.tag}] : []),
-  ];
-
-  return (
-    <div className="min-h-screen">
-      <header style={{background:'rgba(15,15,26,0.95)',backdropFilter:'blur(20px)',borderBottom:'1px solid rgba(255,255,255,0.07)',position:'sticky',top:0,zIndex:50}}>
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center font-black text-white text-sm flex-shrink-0"
-            style={{background:'linear-gradient(135deg,#8b5cf6,#ec4899)'}}>R</div>
-          <div className="hidden sm:block mr-1">
-            <div className="text-white font-bold text-sm leading-none">REVIVE</div>
-            <div className="text-slate-600 text-xs">Youth Stats</div>
-          </div>
-
-          <nav className="flex gap-1 mx-auto flex-wrap justify-center">
-            {TABS.map(t=>(
-              <button key={t.id}
-                onClick={()=>{ setPage(t.id); if (t.id!=='form') setEditing(null); }}
-                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-medium transition-all border ${
-                  page===t.id?'bg-violet-600/20 border-violet-500/40 text-violet-300':'text-slate-500 hover:text-slate-300 border-transparent hover:bg-white/5'}`}>
-                <SI p={t.icon} size={13}/>
-                <span className="hidden sm:inline">{t.label}</span>
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <SyncDot state={syncState}/>
-            <span className={`pill text-xs ${isAdmin?'bg-violet-500/20 text-violet-300':'bg-slate-700/40 text-slate-400'}`}>
-              {isAdmin?'Admin':'Viewer'}
-            </span>
-            <button onClick={logout} title="Abmelden"
-              className="text-slate-600 hover:text-slate-400 transition-all">
-              <SI p="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" size={14}/>
-            </button>
-          </div>
-
-          {isAdmin && (
-            <div className="flex gap-1.5 flex-shrink-0">
-              <button onClick={()=>exportExcel(entries,eventTypes)}
-                className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-all text-xs"
-                title="Als Excel-Datei exportieren">
-                <SI p={IC.download} size={13}/><span className="hidden sm:inline">Export</span>
-              </button>
-              <label className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 bg-white/5 hover:bg-white/10 px-2.5 py-1.5 rounded-lg transition-all text-xs cursor-pointer"
-                title="CSV importieren">
-                <SI p={IC.upload} size={13}/><span className="hidden sm:inline">Import</span>
-                <input type="file" accept=".csv" onChange={importCSV} className="hidden"/>
-              </label>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 py-6 pb-12">
-        {page==='dashboard' && <Dashboard entries={entries} eventTypes={eventTypes}/>}
-        {page==='compare'   && <Comparison entries={entries} eventTypes={eventTypes}/>}
-        {page==='form' && isAdmin && (
-          <EntryForm key={editing?.id||'new'} initialData={editing} eventTypes={eventTypes}
-            onSave={editing?(d)=>updateEntry(editing.id,d):addEntry}
-            onCancel={editing?()=>{setEditing(null);setPage('entries');}:null}/>
-        )}
-        {page==='entries' && (
-          <EntryList entries={entries} eventTypes={eventTypes}
-            onEdit={isAdmin?e=>{setEditing(e);setPage('form');}:null}
-            onDelete={isAdmin?deleteEntry:null}
-            onAdd={isAdmin?()=>{setEditing(null);setPage('form');}:null}/>
-        )}
-        {page==='types' && isAdmin && <EventTypeManager eventTypes={eventTypes} setEventTypes={updateEventTypes} entries={entries}/>}
-      </main>
+    }
+    return `<div style="margin-bottom:24px;border-radius:12px;overflow:hidden;border:1px solid #1e2638">
+      <div style="background:linear-gradient(135deg,#0d1117,#1e1b4b);padding:16px 18px;color:#fff">
+        <div style="font-size:16px;font-weight:800">${esc(s.name)}</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:2px">${fmtDate(s.date)}${s.timeStart?' &middot; '+s.timeStart+(s.timeEnd?' ‚Äì '+s.timeEnd:''):''}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#161b27">${sections}</table>
+    </div>`;
+  }).join('');
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0d1117;padding:24px;margin:0;color:#e2e8f0">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="display:inline-flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:9px;background:#7c3aed;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#fff">R3</div>
+        <div style="font-size:18px;font-weight:800;color:#e2e8f0">Dienstplan</div>
+      </div>
     </div>
-  );
-};
+    ${rows}
+    <div style="text-align:center;font-size:11px;color:#475569;margin-top:24px">Erstellt mit R3 Dienstplan</div>
+  </div></body></html>`;
+}
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   VIEW: EINSTELLUNGEN
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function renderEinstellungen(){
+  document.getElementById('page-content').innerHTML=`
+    <div class="page-hd">
+      <div><div class="page-title">Einstellungen</div><div class="page-sub">Konfiguration & Datenverwaltung</div></div>
+    </div>
+    <div style="display:grid;gap:10px;max-width:640px">
+      <div class="card">
+        <div class="card-hd"><h2>Admin-PIN</h2></div>
+        <div class="card-body">
+          <div class="form-group"><label class="field-label">Neuer PIN (4 Ziffern)</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="new-pin" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢" style="max-width:120px;letter-spacing:6px;font-size:18px;text-align:center">
+              <button class="btn btn-acc btn-sm" onclick="savePin()">Speichern</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2>Daten-Sync</h2></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Exportiere alle Daten als Code ‚Äì kopiere ihn auf ein anderes Ger√§t und importiere ihn dort.</p>
+          <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+            <button class="btn btn-acc btn-sm" onclick="syncExportCode()">Sync-Code generieren</button>
+            <button class="btn btn-sec btn-sm" onclick="openSyncPull()">Code importieren</button>
+          </div>
+          <div id="sync-export-box" style="display:none">
+            <label class="field-label">Sync-Code</label>
+            <textarea id="sync-export-ta" rows="4" readonly class="sync-preview" style="margin-bottom:8px"></textarea>
+            <button class="btn btn-acc btn-sm" onclick="copySyncCode()">Kopieren</button>
+            <span id="sync-copy-ok" class="hidden" style="font-size:12px;color:var(--suc);margin-left:8px">Kopiert!</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><h2>JSON-Export / Import</h2></div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-sec btn-sm" onclick="exportJSON()">JSON exportieren</button>
+            <button class="btn btn-sec btn-sm" onclick="document.getElementById('imp-file').click()">JSON importieren</button>
+            <input type="file" id="imp-file" accept=".json" class="hidden" onchange="importJSON(this)">
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(239,68,68,.2)">
+        <div class="card-hd"><h2 style="color:var(--dan)">Gefahrenzone</h2></div>
+        <div class="card-body">
+          <button class="btn btn-dan btn-sm" onclick="resetData()">Alle Daten l√∂schen</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function savePin(){
+  const p=document.getElementById('new-pin').value;
+  if(p.length!==4||isNaN(p)){ toast('PIN muss 4 Ziffern sein','err'); return; }
+  db.meta.adminPin=p; saveDB(); toast('PIN ge√§ndert','ok');
+}
+
+function exportJSON(){
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='r3-dienstplan.json'; a.click();
+}
+
+function importJSON(input){
+  const file=input.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{ try{ db=JSON.parse(e.target.result); saveDB(); toast('Importiert','ok'); showView(currentView); }catch{ toast('Ung√ºltige Datei','err'); } };
+  r.readAsText(file);
+}
+
+function resetData(){
+  if(!confirm('Alle Daten wirklich l√∂schen? Diese Aktion kann nicht r√ºckg√§ngig gemacht werden.')) return;
+  db=defaultDB(); saveDB(); toast('Daten gel√∂scht'); showView('einstellungen');
+}
+
+function syncExportCode(){
+  try{
+    const code=btoa(unescape(encodeURIComponent(JSON.stringify(db))));
+    document.getElementById('sync-export-box').style.display='block';
+    document.getElementById('sync-export-ta').value=code;
+    toast('Code generiert','ok');
+  }catch(e){ toast('Fehler','err'); }
+}
+
+function copySyncCode(){
+  const ta=document.getElementById('sync-export-ta');
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    const ok=document.getElementById('sync-copy-ok');
+    ok.classList.remove('hidden'); setTimeout(()=>ok.classList.add('hidden'),2500);
+  });
+}
+
+function openSyncPull(){
+  openModal(`
+    <div class="modal-header"><h3>Sync-Code importieren</h3><button class="close-btn" onclick="closeModal()">&#215;</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:12px">F√ºge hier den Sync-Code vom anderen Ger√§t ein.</p>
+      <div class="form-group"><label class="field-label">Sync-Code</label>
+        <textarea id="sync-code-inp" rows="5" placeholder="Code hier einf√ºgen‚Ä¶" style="font-family:monospace;font-size:11px;word-break:break-all"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sec btn-sm" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-acc btn-sm" onclick="syncPull()">Importieren</button>
+    </div>`);
+}
+
+function syncPull(){
+  const code=document.getElementById('sync-code-inp').value.trim();
+  if(!code){ toast('Code fehlt','err'); return; }
+  try{
+    const data=JSON.parse(decodeURIComponent(escape(atob(code))));
+    if(!data.persons||!data.groups) throw new Error();
+    db=data; saveDB(); closeModal(); toast('Importiert!','ok'); showView(currentView);
+  }catch(e){ toast('Ung√ºltiger Code','err'); }
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   UTILS
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+function openModal(html,cls=''){
+  const mo=document.getElementById('mo');
+  const mc=document.getElementById('mc');
+  mc.className='modal '+(cls||'');
+  mc.innerHTML=html;
+  mo.style.display='flex';
+  setTimeout(()=>mc.querySelector('input,select,textarea')?.focus(),80);
+}
+
+function closeModal(){
+  document.getElementById('mo').style.display='none';
+  document.getElementById('mc').innerHTML='';
+}
+
+function toast(msg,type=''){
+  const tc=document.getElementById('tc');
+  const el=document.createElement('div');
+  el.className='toast '+(type==='ok'?'ok':type==='err'?'err':'');
+  el.textContent=msg;
+  tc.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); },2700);
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function initials(name){ return String(name||'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function fmtDate(d){ if(!d) return ''; try{ return new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}); }catch{ return d; } }
+function getGroupName(gid){ return db.groups.find(g=>g.id===gid)?.name||gid; }
+function getDienstName(did){ for(const g of db.groups) for(const d of(g.dienste||[])) if(d.id===did) return d.name; return did; }
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   BOOT
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+init();
 </script>
 </body>
 </html>
