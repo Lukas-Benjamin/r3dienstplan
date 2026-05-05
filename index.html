@@ -3,6 +3,34 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>R3 Dienstplan</title>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAXfu5d7pQi05JNaelnjV6whLOtMSH-oKE",
+    authDomain: "r3dienstplan.firebaseapp.com",
+    databaseURL: "https://r3dienstplan-default-rtdb.firebaseio.com",
+    projectId: "r3dienstplan",
+    storageBucket: "r3dienstplan.firebasestorage.app",
+    messagingSenderId: "264654913432",
+    appId: "1:264654913432:web:1f2b33f37c8659d1dff5ed",
+    measurementId: "G-1C16G9JM42"
+  };
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    window._fbDb = database;
+    window._fbFns = { ref, set, get, onValue };
+    window._fbReady = true;
+    console.log('[R3] Firebase bereit');
+  } catch(e) {
+    console.warn('[R3] Firebase Fehler:', e.message);
+    window._fbReady = false;
+  }
+</script>
 <style>
 :root{
   --bg:#0d1117;--bg2:#161b27;--bg3:#1e2638;
@@ -260,9 +288,10 @@ input[type=color]{width:36px;height:32px;padding:2px;border-radius:6px;cursor:po
     <div class="login-sub">Gib deinen Admin-PIN ein, um fortzufahren.</div>
     <div class="form-group">
       <label class="field-label">Admin-PIN</label>
-      <input type="password" id="login-pin" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢"
-        style="letter-spacing:6px;font-size:20px;text-align:center"
-        oninput="if(this.value.length===4)doLogin()"
+      <input type="text" id="login-pin" maxlength="4" placeholder="1234"
+        inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+        style="letter-spacing:8px;font-size:22px;text-align:center;font-weight:800"
+        oninput="this.value=this.value.replace(/[^0-9]/g,'');if(this.value.length===4)doLogin()"
         onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn btn-acc" style="width:100%;justify-content:center;margin-top:4px" onclick="doLogin()">Einloggen</button>
@@ -337,7 +366,10 @@ function loadDB(){
   if(!db.groups) db.groups=defaultDB().groups;
   if(!db.templates) db.templates=[];
 }
-function saveDB(){ localStorage.setItem(DBKEY,JSON.stringify(db)); }
+function saveDB(){
+  localStorage.setItem(DBKEY, JSON.stringify(db));
+  fbAutoPush(); // auto-sync to Firebase in background
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
 /* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
@@ -402,6 +434,10 @@ function renderNav(){
     <button class="nav-tab${currentView===v.id?' active':''}" onclick="showView('${v.id}')">${v.label}</button>
   `).join('');
   document.getElementById('nav-right').innerHTML=`
+    <div style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:var(--bg3);border:1px solid var(--brd)">
+      <span id="fb-nav-dot" style="font-size:10px;color:var(--txt3)">‚óã</span>
+      <span id="fb-nav-lbl" style="font-size:11px;font-weight:600;color:var(--txt3)">Firebase</span>
+    </div>
     <button class="btn btn-ghost btn-sm" onclick="logout()" style="font-size:12px;color:var(--txt3)">Abmelden</button>`;
 }
 
@@ -1374,28 +1410,70 @@ function buildEmailHTML(schichten){
    VIEW: EINSTELLUNGEN
 ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
 function renderEinstellungen(){
+
   document.getElementById('page-content').innerHTML=`
     <div class="page-hd">
       <div><div class="page-title">Einstellungen</div><div class="page-sub">Konfiguration & Datenverwaltung</div></div>
     </div>
-    <div style="display:grid;gap:10px;max-width:640px">
+    <div style="display:grid;gap:10px;max-width:680px">
+
       <div class="card">
         <div class="card-hd"><h2>Admin-PIN</h2></div>
         <div class="card-body">
           <div class="form-group"><label class="field-label">Neuer PIN (4 Ziffern)</label>
-            <div style="display:flex;gap:8px">
-              <input type="password" id="new-pin" maxlength="4" placeholder="‚Ä¢‚Ä¢‚Ä¢‚Ä¢" style="max-width:120px;letter-spacing:6px;font-size:18px;text-align:center">
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" id="new-pin" maxlength="4" placeholder="1234"
+                inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+                style="max-width:110px;letter-spacing:8px;font-size:20px;text-align:center;font-weight:800"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'')">
               <button class="btn btn-acc btn-sm" onclick="savePin()">Speichern</button>
             </div>
           </div>
+          <p style="font-size:12px;color:var(--txt3);margin-top:6px">Standard-PIN: 1234. Teile ihn nur mit Admins.</p>
         </div>
       </div>
-      <div class="card">
-        <div class="card-hd"><h2>Daten-Sync</h2></div>
+
+      <div class="card" style="border-color:rgba(139,92,246,.3)">
+        <div class="card-hd">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">üî•</span>
+            <h2>Firebase Echtzeit-Sync</h2>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:${fbReady()?'var(--suc)':'var(--dan)'}">
+            <span style="width:7px;height:7px;border-radius:50%;background:${fbReady()?'var(--suc)':'var(--dan)'};display:inline-block"></span>
+            ${fbReady()?'Verbunden':'Nicht verbunden'}
+          </span>
+        </div>
         <div class="card-body">
-          <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Exportiere alle Daten als Code ‚Äì kopiere ihn auf ein anderes Ger√§t und importiere ihn dort.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div style="background:var(--bg3);border-radius:var(--r);padding:12px;border:1px solid var(--brd)">
+              <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Projekt</div>
+              <div style="font-size:13px;font-weight:600;color:var(--txt)">r3dienstplan</div>
+            </div>
+            <div style="background:var(--bg3);border-radius:var(--r);padding:12px;border:1px solid var(--brd)">
+              <div style="font-size:10px;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px">Pfad</div>
+              <div style="font-size:13px;font-weight:600;color:var(--txt);font-family:monospace">/r3dienstplan</div>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--txt3);margin-bottom:14px">
+            ‚úÖ Auto-Sync aktiv ‚Äì jede √Ñnderung wird automatisch zu Firebase hochgeladen.
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="btn btn-sec btn-sm" onclick="fbPull()">‚¨á Von Firebase laden</button>
+            <button class="btn ${_fbLiveUnsub?'btn-dan':'btn-suc'} btn-sm" onclick="fbToggleLive()">
+              ${_fbLiveUnsub?'üî¥ Live-Sync stoppen':'üü¢ Live-Sync starten'}
+            </button>
+          </div>
+          <div id="fb-log" style="font-size:11px;color:var(--txt3);font-family:monospace;line-height:1.8;min-height:20px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-hd"><h2>Manueller Sync-Code</h2></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Als Fallback: Daten als Code exportieren und auf einem anderen Ger√§t importieren.</p>
           <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-            <button class="btn btn-acc btn-sm" onclick="syncExportCode()">Sync-Code generieren</button>
+            <button class="btn btn-sec btn-sm" onclick="syncExportCode()">Code generieren</button>
             <button class="btn btn-sec btn-sm" onclick="openSyncPull()">Code importieren</button>
           </div>
           <div id="sync-export-box" style="display:none">
@@ -1406,6 +1484,7 @@ function renderEinstellungen(){
           </div>
         </div>
       </div>
+
       <div class="card">
         <div class="card-hd"><h2>JSON-Export / Import</h2></div>
         <div class="card-body">
@@ -1416,6 +1495,7 @@ function renderEinstellungen(){
           </div>
         </div>
       </div>
+
       <div class="card" style="border-color:rgba(239,68,68,.2)">
         <div class="card-hd"><h2 style="color:var(--dan)">Gefahrenzone</h2></div>
         <div class="card-body">
@@ -1426,9 +1506,119 @@ function renderEinstellungen(){
 }
 
 function savePin(){
-  const p=document.getElementById('new-pin').value;
-  if(p.length!==4||isNaN(p)){ toast('PIN muss 4 Ziffern sein','err'); return; }
+  const p=document.getElementById('new-pin').value.replace(/[^0-9]/g,'');
+  if(p.length!==4){ toast('PIN muss genau 4 Ziffern sein','err'); return; }
   db.meta.adminPin=p; saveDB(); toast('PIN ge√§ndert','ok');
+}
+
+/* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
+   FIREBASE SYNC  (hardcoded config, auto-sync)
+‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+const FB_PATH = 'r3dienstplan';
+let _fbPushPending = false;
+let _fbPushTimer = null;
+let _fbLiveUnsub = null;
+let _fbSyncState = 'idle'; // idle | syncing | ok | err
+
+function fbReady(){ return !!window._fbDb && !!window._fbFns; }
+
+function fbSetState(state){
+  _fbSyncState = state;
+  const dot = document.getElementById('fb-nav-dot');
+  const lbl = document.getElementById('fb-nav-lbl');
+  if(!dot || !lbl) return;
+  const map = {
+    idle:    {color:'var(--txt3)',   icon:'‚óã', text:'Sync'},
+    syncing: {color:'var(--war)',    icon:'‚Üª', text:'Syncing‚Ä¶'},
+    ok:      {color:'var(--suc)',    icon:'‚óè', text:'Synced'},
+    err:     {color:'var(--dan)',    icon:'‚óè', text:'Sync Fehler'},
+  };
+  const s = map[state] || map.idle;
+  dot.style.color = s.color;
+  dot.textContent = s.icon;
+  lbl.textContent = s.text;
+  lbl.style.color = s.color;
+}
+
+// Called automatically after every saveDB()
+async function fbAutoPush(){
+  if(!fbReady()) return;
+  // Debounce: only push 1s after last change
+  clearTimeout(_fbPushTimer);
+  _fbPushTimer = setTimeout(async ()=>{
+    try{
+      fbSetState('syncing');
+      const {ref, set} = window._fbFns;
+      await set(ref(window._fbDb, FB_PATH), db);
+      fbSetState('ok');
+      fbUpdateLog('Auto-Sync OK','ok');
+    }catch(e){
+      fbSetState('err');
+      fbUpdateLog('Sync Fehler: '+e.message,'err');
+      console.warn('[R3] Firebase push error:', e);
+    }
+  }, 800);
+}
+
+// Pull once from Firebase
+async function fbPull(){
+  if(!fbReady()){ toast('Firebase nicht bereit','err'); return; }
+  try{
+    fbSetState('syncing');
+    const {ref, get} = window._fbFns;
+    const snap = await get(ref(window._fbDb, FB_PATH));
+    if(!snap.exists()){ fbSetState('ok'); toast('Noch keine Daten in Firebase'); return; }
+    const data = snap.val();
+    if(!data.persons || !data.groups){ toast('Ung√ºltige Firebase-Daten','err'); return; }
+    db = data;
+    localStorage.setItem(DBKEY, JSON.stringify(db));
+    fbSetState('ok');
+    toast('Von Firebase geladen','ok');
+    fbUpdateLog('Pull OK ‚Äì '+new Date().toLocaleTimeString('de-DE'),'ok');
+    showView(currentView);
+  }catch(e){
+    fbSetState('err');
+    toast('Pull fehlgeschlagen','err');
+    fbUpdateLog('Pull Fehler: '+e.message,'err');
+  }
+}
+
+// Toggle live listener
+function fbToggleLive(){
+  if(_fbLiveUnsub){
+    _fbLiveUnsub();
+    _fbLiveUnsub = null;
+    toast('Live-Sync gestoppt');
+    fbUpdateLog('Live-Sync deaktiviert');
+    renderEinstellungen();
+    return;
+  }
+  if(!fbReady()){ toast('Firebase nicht bereit','err'); return; }
+  const {ref, onValue} = window._fbFns;
+  let skip = true; // skip the immediate first call
+  _fbLiveUnsub = onValue(ref(window._fbDb, FB_PATH), snap=>{
+    if(skip){ skip=false; return; }
+    if(!snap.exists()) return;
+    const data = snap.val();
+    if(!data.persons || !data.groups) return;
+    db = data;
+    localStorage.setItem(DBKEY, JSON.stringify(db));
+    showView(currentView);
+    toast('üîÑ Firebase: Daten aktualisiert','ok');
+    fbUpdateLog('Live-Update empfangen','ok');
+  });
+  toast('Live-Sync aktiv','ok');
+  fbUpdateLog('Live-Sync gestartet');
+  renderEinstellungen();
+}
+
+function fbUpdateLog(msg, type=''){
+  const el = document.getElementById('fb-log');
+  if(!el) return;
+  const time = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const color = type==='ok'?'var(--suc)':type==='err'?'var(--dan)':'var(--txt3)';
+  el.innerHTML = `<span style="color:${color}">[${time}] ${esc(msg)}</span>` +
+    (el.children.length>0?'<br>'+el.innerHTML.split('<br>').slice(0,4).join('<br>'):'');
 }
 
 function exportJSON(){
@@ -1526,6 +1716,32 @@ function getDienstName(did){ for(const g of db.groups) for(const d of(g.dienste|
 /* ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê
    BOOT
 ‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê‚ïê */
+// Wait for Firebase module then pull latest data
+window.addEventListener('load', async ()=>{
+  await new Promise(r => setTimeout(r, 800)); // wait for module script
+  if(!fbReady()) return;
+  // Pull from Firebase on start (non-blocking)
+  try{
+    const {ref, get} = window._fbFns;
+    const snap = await get(ref(window._fbDb, FB_PATH));
+    if(snap.exists()){
+      const data = snap.val();
+      if(data.persons && data.groups){
+        db = data;
+        localStorage.setItem(DBKEY, JSON.stringify(db));
+        if(authed) showView(currentView);
+        fbSetState('ok');
+        console.log('[R3] Firebase initial load OK');
+      }
+    } else {
+      fbSetState('ok');
+    }
+  }catch(e){
+    fbSetState('err');
+    console.warn('[R3] Firebase initial load failed:', e.message);
+  }
+});
+
 init();
 </script>
 </body>
